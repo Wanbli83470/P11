@@ -1,9 +1,9 @@
-#!/usr/bin/env python3
-# coding: utf-8
-from program import hello
+from program import search_products, save_pdf
 from gi.repository import Gtk
-def say_hello(button):
-	print("Bienvenu dans l'interface de substitution ! ")
+import constants
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+
 # On crée notre fenêtre principale
 window = Gtk.Window()
 
@@ -11,7 +11,9 @@ window = Gtk.Window()
 window.set_title('PyNutrition')
 
 # On ajoute des marges
+
 window.set_border_width(10)
+
 
 # On crée les boutons
 button_search = Gtk.Button(label='Search substitutes')  # Création d'un bouton 1
@@ -42,13 +44,11 @@ grid.attach(button_exit, 0, 6, 1, 1)
 window.add(grid)
 
 # On réagis au click des boutons
-button_search.connect('clicked', hello.dire)
+button_search.connect('clicked', search_products.dire)
 button_exit.connect('clicked', Gtk.main_quit)
-
+button_pdf.connect('clicked', save_pdf)
 # On affiche toute notre fenêtre
 window.show_all()
-
-# On affiche le formulaire d'enregistrement du pdf
 
 # On indique que le si la fenêtre est supprimée, la boucle principale s'arrête
 window.connect('delete-event', Gtk.main_quit)
