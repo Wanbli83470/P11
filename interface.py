@@ -1,8 +1,23 @@
 from program import search_products, save_pdf
 from gi.repository import Gtk
-import constants
+from constants import *
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
+import pymysql.cursors
+
+"""CONNECT TO THE DATABASE"""
+
+try :
+    connection = pymysql.connect(host=HOST, #variable in file constantes.py
+                                     user=USER,
+                                     password=PASSWORD,
+                                     db=DB,
+                                     charset='utf8mb4',
+                                     port = PORT,
+                                     cursorclass=pymysql.cursors.DictCursor)
+    print("\n Connexion réussi à la BDD : {}".format(DB))
+except :
+    print("\n erreur de connexion")
 
 # On crée notre fenêtre principale
 window = Gtk.Window()
