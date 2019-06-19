@@ -7,6 +7,9 @@ def say_hello(button):
 # On crée notre fenêtre principale
 window = Gtk.Window()
 
+# On assigne un titre à la fenêtre
+window.set_title('PyNutrition')
+
 # On ajoute des marges
 window.set_border_width(10)
 
@@ -17,18 +20,22 @@ button_save = Gtk.Button(label='Save') # Création d'un bouton de sauvegarde
 button_cleaning = Gtk.Button(label='Cleaned my products') # Création d'un bouton de sauvegarde
 button_display = Gtk.Button(label='View my products')
 button_pdf = Gtk.Button(label='Export PDF')
-# On assigne un titre à la fenêtre
-window.set_title('PyNutrition')
+
+# On Crée les formulaires
+form_save_pdf = Gtk.Entry()
+form_search = Gtk.Entry()
 
 # On crée une grille
 grid = Gtk.Grid()
 
-# On Attache les boutons à la grille
-grid.attach(button_search, 0, 0, 3, 1)  # Le bouton_1 se trouve en (0;0), prend 3 cases de large et une de haut
-grid.attach(button_cleaning, 0, 1, 1, 1)  # Le bouton_2 se trouve en (0;1), prend une case de large et 3 de haut
-grid.attach(button_save, 0, 2, 1, 1)
-grid.attach(button_display, 0, 3, 1, 1)
-grid.attach(button_exit, 0, 4, 1, 1)
+# On Attache les éléments à la grille
+grid.attach(button_search, 0, 1, 3, 1)  # Le bouton_1 se trouve en (0;0), prend 3 cases de large et une de haut
+grid.attach(form_search, 0, 0, 3, 1)
+grid.attach(button_cleaning, 0, 2, 1, 1)  # Le bouton_2 se trouve en (0;1), prend une case de large et 3 de haut
+grid.attach(button_save, 0, 3, 1, 1)
+grid.attach(button_display, 0, 4, 1, 1)
+grid.attach(button_exit, 0, 5, 1, 1)
+grid.attach(form_save_pdf, 0, 6, 3, 1)
 
 
 # On affiche la grille
