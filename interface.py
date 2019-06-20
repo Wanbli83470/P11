@@ -1,4 +1,4 @@
-from program import search_products, save_pdf
+from program import search_products
 from gi.repository import Gtk
 from constants import *
 from reportlab.pdfgen import canvas
@@ -28,6 +28,52 @@ window.set_title('PyNutrition')
 # On ajoute des marges
 
 window.set_border_width(10)
+count = 10
+
+def save_pdf(name="Fred"):
+
+	#On récupère le nom du formulaire
+	name_pdf = form_save_pdf.get_text()
+	#On vide le formulaire
+	form_save_pdf.set_text('')
+
+
+	pdf = canvas.Canvas("{}.pdf".format(name_pdf))
+
+	pdf.drawString(3*cm, 28*cm, u'Bienvenue {} vous avez enregistré {} produits'.format(name, count))
+	pdf.line(10.5*cm,23*cm,10.5*cm,0*cm)
+	#Create the column
+	pdf.drawString(3.5*cm, 23.5*cm, u'Mes habitudes')
+	pdf.drawString(13.5*cm, 23.5*cm, u'Mes substituts')
+	#Create the lines
+	nb_line = 21
+	x = 21
+	y = 21
+
+	#Get the table SUBSTITUTS from Database
+	with connection :
+		cur = connection.cursor()
+		cur.execute("SELECT INPUT_PRODUCT FROM SUBSTITUTS")
+		data_sub = cur.fetchall()
+	
+		
+	print(type(data_sub))
+	print(data_sub)
+	position = 20.4
+
+	for s in data_sub :
+		print(s["INPUT_PRODUCT"])
+		print(position)
+		pdf.drawString(4*cm, position*cm, s["INPUT_PRODUCT"])
+		pdf.line(0*cm,x*cm,21*cm,y*cm)
+		nb_line = nb_line - 1
+		position = position - 1
+		x = x - 1
+		y = y - 1
+	#Get the produit correspondant dans PRODUITS
+
+
+	pdf.save()
 
 
 # On crée les boutons
@@ -41,7 +87,6 @@ button_pdf = Gtk.Button(label='Export PDF')
 # On Crée les formulaires
 form_save_pdf = Gtk.Entry()
 form_search = Gtk.Entry()
-
 # On crée une grille
 grid = Gtk.Grid()
 
