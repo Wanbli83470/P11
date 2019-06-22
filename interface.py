@@ -98,18 +98,48 @@ def windows_data(button):
 	# On recupère nos substituts
 	with connection :
 		cur = connection.cursor()
-		cur.execute("SELECT INPUT_PRODUCT FROM SUBSTITUTS")
+		cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID FROM SUBSTITUTS")
 		data_sub = cur.fetchall()
-		data_sub = str(data_sub)
-		data_sub = data_sub.replace(',', '\n\n')
 
+
+	habitudes = []
+	substituts = []
+	for s in data_sub :
+		print(s["INPUT_PRODUCT"])
+		print(s["PRODUIT_ID"])
+		habitudes.append(s["INPUT_PRODUCT"])
+		with connection :
+			cur = connection.cursor()
+			cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
+			data_sub2 = cur.fetchall()
+			print(data_sub2)
+			substituts.append((data_sub2[0]["NOM"]))
+
+
+
+	substituts = str(substituts)
+	substituts = substituts.replace(",",'\n')
+	habitudes = str(habitudes)		
+	habitudes = habitudes.replace(',','\n')
+	habitudes = habitudes.replace("'",'')
+	habitudes = habitudes.replace("[",'')
+	habitudes = habitudes.replace("]",'')
 	# On affiche nos substituts
-	label = Gtk.Label(data_sub)
-	grid_data = Gtk.Grid()
-	grid_data.attach(label, 0, 1, 1, 1)
-	sub_window.add(grid_data)
 
+	data_habitudes = Gtk.Label(habitudes)
+	data_substituts = Gtk.Label(substituts)
+
+	title1 = Gtk.Label("Mes habitudes")
+	title2 = Gtk.Label("Mes substitus")
+	grid_data = Gtk.Grid()
+	grid_data.attach(title1, 0, 0, 1, 1)
+	grid_data.attach(data_habitudes, 0, 2, 1, 1)
+	grid_data.attach(title2, 2, 0, 1, 1)
+	grid_data.attach(data_substituts, 2, 2, 1, 1)
+
+	sub_window.add(grid_data)
 	sub_window.show_all()
+
 
 # On crée les boutons
 button_search = Gtk.Button(label='Search substitutes')  # Création d'un bouton 1
@@ -124,18 +154,17 @@ form_save_pdf = Gtk.Entry()
 form_search = Gtk.Entry()
 # On crée une grille
 grid = Gtk.Grid()
-
+espace = Gtk.Label("\n")
 # On Attache les éléments à la grille
-grid.attach(button_search, 0, 1, 3, 1)
-grid.attach(form_search, 0, 0, 3, 1)
+grid.attach(form_search, 0, 0, 4, 1)
+grid.attach(button_search, 0, 1, 4, 1)
 grid.attach(button_save, 0, 3, 1, 1)
 grid.attach(button_display, 0, 4, 1, 1)
 grid.attach(button_pdf, 0, 5, 1, 1)
-grid.attach(form_save_pdf, 1, 5, 2, 1)
+grid.attach(form_save_pdf, 1, 5, 3, 1)
 grid.attach(button_cleaning, 0, 6, 2, 1)
-
 grid.attach(button_exit, 3, 6, 1, 1)
-
+grid.attach(espace, 0, 2, 4, 1)
 # On affiche la grille
 window.add(grid)
 
