@@ -107,7 +107,7 @@ def windows_data(button):
 		print(s["INPUT_PRODUCT"])
 
 	# On affiche nos substituts
-	data = Gtk.Label(data_sub)
+	data = Gtk.Label("ok")
 	sub_window.add(data)
 
 # On crée les boutons
