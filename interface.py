@@ -92,7 +92,7 @@ def cleaning_table(a="b"):
 
 def windows_data(button):
 	sub_window = Gtk.Window()
-	sub_window.show_all()
+	
 	sub_window.set_border_width(10) # Bordure
 
 	# On recupère nos substituts
@@ -100,15 +100,16 @@ def windows_data(button):
 		cur = connection.cursor()
 		cur.execute("SELECT INPUT_PRODUCT FROM SUBSTITUTS")
 		data_sub = cur.fetchall()
-
-
-	for s in data_sub :
-
-		print(s["INPUT_PRODUCT"])
+		data_sub = str(data_sub)
+		data_sub = data_sub.replace(',', '\n\n')
 
 	# On affiche nos substituts
-	data = Gtk.Label("ok")
-	sub_window.add(data)
+	label = Gtk.Label(data_sub)
+	grid_data = Gtk.Grid()
+	grid_data.attach(label, 0, 1, 1, 1)
+	sub_window.add(grid_data)
+
+	sub_window.show_all()
 
 # On crée les boutons
 button_search = Gtk.Button(label='Search substitutes')  # Création d'un bouton 1
