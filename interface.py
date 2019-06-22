@@ -50,19 +50,25 @@ def save_pdf(name="Fred"):
 	x = 21
 	y = 21
 
-	#Get the table SUBSTITUTS from Database
+	#Get the input_product from table SUBSTITUTS from Database
 	with connection :
 		cur = connection.cursor()
-		cur.execute("SELECT INPUT_PRODUCT FROM SUBSTITUTS")
+		cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID FROM SUBSTITUTS")
 		data_sub = cur.fetchall()
 	
-		
-	print(type(data_sub))
-	print(data_sub)
-	position = 20.4
 
+	position = 20.4
 	for s in data_sub :
 		print(s["INPUT_PRODUCT"])
+		print(s["PRODUIT_ID"])
+
+		with connection :
+			cur = connection.cursor()
+			cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
+			data_sub2 = cur.fetchall()
+			pdf.drawString(14*cm, position*cm, str(data_sub2[0]["NOM"]))
+
+
 		print(position)
 		pdf.drawString(4*cm, position*cm, s["INPUT_PRODUCT"])
 		pdf.line(0*cm,x*cm,21*cm,y*cm)
@@ -70,17 +76,45 @@ def save_pdf(name="Fred"):
 		position = position - 1
 		x = x - 1
 		y = y - 1
-	#Get the produit correspondant dans PRODUITS
+
+	#Get the substituts from table SUBSTITUS from Database
 
 
 	pdf.save()
 
+def cleaning_table(a="b"):
+	"""CLEANING TABLES"""
+
+	with connection.cursor() as cursor:
+		sql = "DELETE FROM `SUBSTITUTS`;"
+		cursor.execute(sql, ())
+		connection.commit()
+
+def windows_data(button):
+	sub_window = Gtk.Window()
+	sub_window.show_all()
+	sub_window.set_border_width(10) # Bordure
+
+	# On recupère nos substituts
+	with connection :
+		cur = connection.cursor()
+		cur.execute("SELECT INPUT_PRODUCT FROM SUBSTITUTS")
+		data_sub = cur.fetchall()
+
+
+	for s in data_sub :
+
+		print(s["INPUT_PRODUCT"])
+
+	# On affiche nos substituts
+	data = Gtk.Label(data_sub)
+	sub_window.add(data)
 
 # On crée les boutons
 button_search = Gtk.Button(label='Search substitutes')  # Création d'un bouton 1
 button_exit = Gtk.Button(label='Exit') # Création d'un bouton de sortie
 button_save = Gtk.Button(label='Save') # Création d'un bouton de sauvegarde
-button_cleaning = Gtk.Button(label='Cleaned my products') # Création d'un bouton de sauvegarde
+button_cleaning = Gtk.Button(label='Cleaned my substituts') # Création d'un bouton de sauvegarde
 button_display = Gtk.Button(label='View my products')
 button_pdf = Gtk.Button(label='Export PDF')
 
@@ -91,14 +125,15 @@ form_search = Gtk.Entry()
 grid = Gtk.Grid()
 
 # On Attache les éléments à la grille
-grid.attach(button_search, 0, 1, 3, 1)  # Le bouton_1 se trouve en (0;0), prend 3 cases de large et une de haut
+grid.attach(button_search, 0, 1, 3, 1)
 grid.attach(form_search, 0, 0, 3, 1)
-grid.attach(button_cleaning, 0, 2, 1, 1)  # Le bouton_2 se trouve en (0;1), prend une case de large et 3 de haut
 grid.attach(button_save, 0, 3, 1, 1)
 grid.attach(button_display, 0, 4, 1, 1)
 grid.attach(button_pdf, 0, 5, 1, 1)
 grid.attach(form_save_pdf, 1, 5, 2, 1)
-grid.attach(button_exit, 0, 6, 1, 1)
+grid.attach(button_cleaning, 0, 6, 2, 1)
+
+grid.attach(button_exit, 3, 6, 1, 1)
 
 # On affiche la grille
 window.add(grid)
@@ -107,6 +142,8 @@ window.add(grid)
 button_search.connect('clicked', search_products.dire)
 button_exit.connect('clicked', Gtk.main_quit)
 button_pdf.connect('clicked', save_pdf)
+button_cleaning.connect('clicked', cleaning_table)
+button_display.connect('clicked', windows_data)
 # On affiche toute notre fenêtre
 window.show_all()
 
