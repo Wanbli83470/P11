@@ -1,4 +1,4 @@
-from program import search_products
+from program import search_products, ScrappingJson
 from gi.repository import Gtk
 from constants import *
 from reportlab.pdfgen import canvas
@@ -68,7 +68,6 @@ def save_pdf(name="Fred"):
 			data_sub2 = cur.fetchall()
 			pdf.drawString(14*cm, position*cm, str(data_sub2[0]["NOM"]))
 
-
 		print(position)
 		pdf.drawString(4*cm, position*cm, s["INPUT_PRODUCT"])
 		pdf.line(0*cm,x*cm,21*cm,y*cm)
@@ -92,8 +91,8 @@ def cleaning_table(a="b"):
 
 def windows_data(button):
 	sub_window = Gtk.Window()
-	
-	sub_window.set_border_width(10) # Bordure
+	sub_window.set_title("My products")
+	sub_window.set_border_width(20) # Bordure
 
 	# On recupère nos substituts
 	with connection :
@@ -133,10 +132,13 @@ def windows_data(button):
 	title2 = Gtk.Label("Mes substitus")
 	grid_data = Gtk.Grid()
 	grid_data.attach(title1, 0, 0, 1, 1)
-	grid_data.attach(data_habitudes, 0, 2, 1, 1)
+	grid_data.attach(data_habitudes, 0, 1, 1, 1)
 	grid_data.attach(title2, 2, 0, 1, 1)
-	grid_data.attach(data_substituts, 2, 2, 1, 1)
+	grid_data.attach(data_substituts, 2, 1, 1, 1)
 
+	Gtk.Grid.set_column_homogeneous(grid_data, True)
+	Gtk.Grid.set_row_homogeneous(grid_data, True)
+	Gtk.Grid.set_row_spacing(grid_data, 8)
 	sub_window.add(grid_data)
 	sub_window.show_all()
 
@@ -144,7 +146,6 @@ def windows_data(button):
 # On crée les boutons
 button_search = Gtk.Button(label='Search substitutes')  # Création d'un bouton 1
 button_exit = Gtk.Button(label='Exit') # Création d'un bouton de sortie
-button_save = Gtk.Button(label='Save') # Création d'un bouton de sauvegarde
 button_cleaning = Gtk.Button(label='Cleaned my substituts') # Création d'un bouton de sauvegarde
 button_display = Gtk.Button(label='View my products')
 button_pdf = Gtk.Button(label='Export PDF')
@@ -155,21 +156,22 @@ form_search = Gtk.Entry()
 # On crée une grille
 grid = Gtk.Grid()
 espace = Gtk.Label("\n")
+espace2 = Gtk.Label("\n")
 # On Attache les éléments à la grille
 grid.attach(form_search, 0, 0, 4, 1)
 grid.attach(button_search, 0, 1, 4, 1)
-grid.attach(button_save, 0, 3, 1, 1)
 grid.attach(button_display, 0, 4, 1, 1)
 grid.attach(button_pdf, 0, 5, 1, 1)
 grid.attach(form_save_pdf, 1, 5, 3, 1)
-grid.attach(button_cleaning, 0, 6, 2, 1)
-grid.attach(button_exit, 3, 6, 1, 1)
+grid.attach(button_cleaning, 0, 7, 2, 1)
+grid.attach(button_exit, 3, 7, 1, 1)
 grid.attach(espace, 0, 2, 4, 1)
+grid.attach(espace2, 0, 6, 4, 1)
 # On affiche la grille
 window.add(grid)
 
 # On réagis au click des boutons
-button_search.connect('clicked', search_products.dire)
+button_search.connect('clicked', ScrappingJson, "test")
 button_exit.connect('clicked', Gtk.main_quit)
 button_pdf.connect('clicked', save_pdf)
 button_cleaning.connect('clicked', cleaning_table)
