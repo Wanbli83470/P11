@@ -91,8 +91,28 @@ class ExportPdf():
 
 
         pdf.save()
+
 class DownloadProduct():
-    """Class to download the products of the same category as the user"""
+
+    def test_category_in_BDD(user_category = str):
+        with connection.cursor() as cursor:
+            sql = "SELECT NOM FROM `CATEGORIES`"
+            cursor.execute(sql, ())
+            category_exist_sql = cursor.fetchall()                    
+            connection.commit()
+        category_exist_list = []    
+        
+        for c in category_exist_sql :
+            for d, e in c.items():
+                category_exist_list.append(e)
+        
+        if user_category in category_exist_list :
+            print("Catégorie existante")
+            return True
+
+        else :
+            print("Catégorie Nouvelle")
+            return False
 
 class Consult():
     def consult_compare():
@@ -145,6 +165,20 @@ class Main(object):
             print(transition)
             terminal_mode = input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Sortir du programme ? \n4 - exporter PDF \n5 - Nettoyer la Base de données\n \n>>> ")
             terminal_mode = int(terminal_mode)
+
+            if terminal_mode == 1 :
+
+                index_category = 1
+                for keys, values in PRODUCTS.items():
+                    print(str(index_category) + " " + keys)
+                    index_category += 1
+                # print(PRODUCTS)
+                user_category_choice = int(input("Choissisez le numéro de la catégorie de produits : "))
+                user_category_choice -= 1
+                print("Vous avez choisi : " + list(PRODUCTS)[user_category_choice])
+                user_category_choice = list(PRODUCTS)[user_category_choice]        
+                DownloadProduct.test_category_in_BDD(user_category = user_category_choice)
+
 
             if terminal_mode == 2 :
                 Consult.consult_compare()
