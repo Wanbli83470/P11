@@ -5,3 +5,15 @@ USER='root'
 PASSWORD='azerty'
 DB='P11'
 PORT = 3306
+
+CATEGORIES = "`CATEGORIES`"
+PRODUITS = "`PRODUITS`"
+SUBSTITUTS = "`SUBSTITUTS`"
+
+TABLES = [SUBSTITUTS, PRODUITS, CATEGORIES]
+
+class CleaningDB():
+	for t in TABLES:
+		print(t)
+
+CleaningDB()		
