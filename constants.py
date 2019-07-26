@@ -11,9 +11,3 @@ PRODUITS = "`PRODUITS`"
 SUBSTITUTS = "`SUBSTITUTS`"
 
 TABLES = [SUBSTITUTS, PRODUITS, CATEGORIES]
-
-class CleaningDB():
-	for t in TABLES:
-		print(t)
-
-CleaningDB()		

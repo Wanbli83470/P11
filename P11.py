@@ -95,10 +95,29 @@ class DownloadProduct():
     """Class to download the products of the same category as the user"""
 
 class Consult():
-    """Class to consult products already registered by comparing with the initial product"""
+    def consult_compare():
+        """Class to consult products already registered by comparing with the initial product"""
+        with connection.cursor() as cursor:
+            sql = "SELECT INPUT_PRODUCT FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
+            cursor.execute(sql, ())
+            my_products = cursor.fetchall()                    
+            connection.commit()
+
+        with connection.cursor() as cursor:
+            sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE, PRODUITS.URL, PRODUITS.STORE FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
+            cursor.execute(sql, ())
+            my_substituts = cursor.fetchall()
+            connection.commit()
+
+        index = -1
+        for i in my_products :
+            for j, k in i.items():
+                print("\nPour remplacer : " + k)
+                index += 1
+                print(f"MON SUBSTITUT : {my_substituts[index]}")
 
 class CleaningDB():
-"""Class to clean the database with sql requests Delete and alter"""    
+    """Class to clean the database with sql requests Delete and alter"""
     def cleaning_tables():
         """Deleting data with a python loop interacting with SQL"""
         with connection.cursor() as cursor:
@@ -118,7 +137,7 @@ class CleaningDB():
                 connection.commit()
 
 class Main(object):
-"""Main loop of the program"""    
+    """Main loop of the program"""  
     continu = True
     transition = "\n"+"-"*204
     while continu:
@@ -128,23 +147,7 @@ class Main(object):
             terminal_mode = int(terminal_mode)
 
             if terminal_mode == 2 :
-                with connection.cursor() as cursor:
-                    sql = "SELECT INPUT_PRODUCT FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
-                    cursor.execute(sql, ())
-                    my_products = cursor.fetchall()
-                    print(my_products)
-                    connection.commit()
-
-                with connection.cursor() as cursor:
-                    sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE, PRODUITS.URL, PRODUITS.STORE FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
-                    cursor.execute(sql, ())
-                    my_substituts = cursor.fetchall()
-                    print(my_substituts)
-                    connection.commit()
-                
-                for i in my_products :
-                    for j, k in i.items():
-                        print("Pour remplacer : " + k)
+                Consult.consult_compare()
 
 
             if terminal_mode == 3 :
