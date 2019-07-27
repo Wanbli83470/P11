@@ -19,3 +19,5 @@ PRODUCTS = {"Boisson" :["Coca Cola", "Ice tea", "Fanta", "Orangina"],
 			"Poisson":["Batonnet de surémi", "poisson pané"]}
 
 CATEGORIES_TO_ENGLISH = {"Boisson":"carbonated-drinks", "Gâteaux/Sucrerie": "sweet-snacks", "Apérétifs":"salty-snacks", "Dessert" : "desserts", "Poisson" : "seafood"}
+
+transition = "\n"+"-"*204

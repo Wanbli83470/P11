@@ -52,10 +52,12 @@ class ExportPdf():
         name = input("Quelle est votre nom ? \n>>> ")
         pdf = canvas.Canvas("substituts-{}.pdf".format(name))
         pdf.drawString(3*cm, 28*cm, u'Bienvenue {} vous avez enregistré {} produits'.format(name, count[0]))
-        pdf.line(10.5*cm,23*cm,10.5*cm,0*cm)
+        pdf.line(7.5*cm,23*cm,7.5*cm,0*cm)
+        pdf.line(14.5*cm,23*cm,14.5*cm,0*cm)
         #Create the column
-        pdf.drawString(3.5*cm, 23.5*cm, u'Mes habitudes')
-        pdf.drawString(13.5*cm, 23.5*cm, u'Mes substituts')
+        pdf.drawString(2*cm, 23.5*cm, u'Mes habitudes')
+        pdf.drawString(9.5*cm, 23.5*cm, u'Mes substituts')
+        pdf.drawString(17*cm, 23.5*cm, u'Magasins')
         #Create the lines
         nb_line = 21
         x = 21
@@ -287,7 +289,6 @@ class CleaningDB():
 class MainLoop(object):
     """Main loop of the program"""  
     continu = True
-    transition = "\n"+"-"*204
     while continu:
         try :
             print(transition)
@@ -327,7 +328,7 @@ class MainLoop(object):
                 Consult.consult_compare()
 
             if terminal_mode == 3 :
-                verif_user = int(input("ëtes vous sûr de votre choix, cette action est irréversible ! \n 1 : OUI \n 2 : NON \n >>>"))
+                verif_user = int(input("êtes vous sûr de votre choix, cette action est irréversible ! \n 1 : OUI \n 2 : NON \n >>>"))
 
                 if verif_user == 1 :
                     CleaningDB.cleaning_tables()
