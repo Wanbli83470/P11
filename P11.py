@@ -322,7 +322,6 @@ class CleaningDB():
         """Deleting data with a python loop interacting with SQL"""
         with connection.cursor() as cursor:
             for t in TABLES:
-                print(t)
                 sql = "DELETE FROM %s;" %(t)
                 cursor.execute(sql, ())
                 connection.commit()
