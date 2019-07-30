@@ -22,6 +22,7 @@ import pymysql.cursors
 from constants import *
 
 """CONNECT TO THE DATABASE"""
+
 try :
     connection = pymysql.connect(host=HOST, #variable in file constantes.py
                                      user=USER,
@@ -46,7 +47,7 @@ class ExportPdf():
             expression = re.compile("([0-9])")
             tes = expression.findall(count)
             print(tes)
-            count = tes            
+            count = tes
             connection.commit()
 
         name = input("Quelle est votre nom ? \n>>> ")
@@ -66,23 +67,21 @@ class ExportPdf():
         #Get the input_product from table SUBSTITUTS from Database
         with connection :
             cur = connection.cursor()
-            cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID FROM SUBSTITUTS")
+            cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
             data_sub = cur.fetchall()
         
 
         position = 20.4
         for s in data_sub :
-            print(s["INPUT_PRODUCT"])
-            print(s["PRODUIT_ID"])
 
             with connection :
                 cur = connection.cursor()
                 cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
                 data_sub2 = cur.fetchall()
-                pdf.drawString(14*cm, position*cm, str(data_sub2[0]["NOM"]))
+                pdf.drawString(9*cm, position*cm, str(data_sub2[0]["NOM"]))
 
-            print(position)
-            pdf.drawString(4*cm, position*cm, s["INPUT_PRODUCT"])
+            pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
+            pdf.drawString(15.5*cm, position*cm, s["STORE"])
             pdf.line(0*cm,x*cm,21*cm,y*cm)
             nb_line = nb_line - 1
             position = position - 1
@@ -94,9 +93,43 @@ class ExportPdf():
 
         pdf.save()
 
-class DownloadProduct():
+class MainLoopBDD():
+    def __init__(self, category_french="", category_english="", user_product=""):
+        self.category_french = category_french
+        self.category_english = category_english
+        self.user_product = user_product
 
-    def get_product(max_pages=5, requête=""):
+    def test_category_in_BDD(self):
+        with connection.cursor() as cursor:
+            sql = "SELECT NOM FROM `CATEGORIES`"
+            cursor.execute(sql, ())
+            category_exist_sql = cursor.fetchall()                    
+            connection.commit()
+        category_exist_list = []    
+        
+        for c in category_exist_sql :
+            for d, e in c.items():
+                category_exist_list.append(e)
+        
+        if self.category_french in category_exist_list :
+            print("Catégorie existante")
+            DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
+            return True
+
+        else :
+            print("Catégorie Nouvelle")
+            with connection.cursor() as cursor:
+                sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
+                cursor.execute(sql, (self.category_french, "lien hardcodé"))
+            connection.commit()
+            DownloadProduct.get_product(max_pages = 1, requête=self.category_english)
+            DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
+            return False
+
+class DownloadProduct(MainLoopBDD):
+
+
+    def get_product(max_pages=5, requête="", self=""):
         # Creation list for BDD
         url = []
         name = []
@@ -192,7 +225,7 @@ class DownloadProduct():
             list_position += 1
             print(list_position)
        
-    def consult_product(name_categorie):
+    def save_substituts(name_categorie, user_product):
         print("Enregistrement de substituts")
 
         with connection.cursor() as cursor:
@@ -207,42 +240,59 @@ class DownloadProduct():
 
 
         choice_substitut = input("\n Indiquer le numéro du produit que vous souhaitez consulter ")
-        print(transition) 
-
-
-class MainLoopBDD():
-    def __init__(self, category_french="", category_english=""):
-        self.category_french = category_french
-        self.category_english = category_english
-
-    def test_category_in_BDD(self):
+        print(transition)
+        
         with connection.cursor() as cursor:
-            sql = "SELECT NOM FROM `CATEGORIES`"
-            cursor.execute(sql, ())
-            category_exist_sql = cursor.fetchall()                    
-            connection.commit()
-        category_exist_list = []    
-        
-        for c in category_exist_sql :
-            for d, e in c.items():
-                category_exist_list.append(e)
-        
-        if self.category_french in category_exist_list :
-            print("Catégorie existante")
-            DownloadProduct.consult_product(name_categorie=self.category_french)
-            return True
 
-        else :
-            print("Catégorie Nouvelle")
-            with connection.cursor() as cursor:
-                sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
-                cursor.execute(sql, (self.category_french, "lien hardcodé"))
-            connection.commit()
-            DownloadProduct.get_product(max_pages = 1, requête=self.category_english)
-            DownloadProduct.consult_product(name_categorie=self.category_french)
-            return False
+            sql = "SELECT `URL` FROM PRODUITS WHERE `ID`=%s"
+            cursor.execute(sql, (choice_substitut))
+            link_result = cursor.fetchall()
 
+        link_result = str(link_result)
+        n_link = ''
+        for x in link_result :
+            if x in ("0","1","2","3","4","5","6","7","8","9") :
+                n_link+=(x)
+                if len(n_link) == 13 :
+                    break
+                
 
+        link_url = "https://fr.openfoodfacts.org/api/v0/produit/{}.json".format(n_link)
+        print(link_url)
+        ri = r.get(link_url)
+        product_substitut = json.loads(ri.text)
+        product_name = (product_substitut["product"]["product_name"])
+        description = (product_substitut["product"]["ingredients_text_debug"])
+        link_url = (product_substitut["product"]["image_front_url"])
+        stores = (product_substitut["product"]["stores"])
+            
+        result_text = ("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Il est disponible dans les magasins : " + stores )
+        print(result_text)
+
+        save_mode_substitut = True
+        while save_mode_substitut :
+            try :
+                save_BDD = input("Voulez-vous enregistrer ce produit dans vos achats ? 1/oui ; 2/non ")
+                save_BDD = int(save_BDD)
+                if save_BDD == 1 :
+                    print("Enregistrement en cours...")
+                    with connection.cursor() as cursor:
+                        sql = "INSERT INTO SUBSTITUTS (`PRODUIT_ID`,`INPUT_PRODUCT`,`STORE`) VALUES (%s, %s, %s)"
+                        cursor.execute(sql, (choice_substitut, user_product, stores))
+
+                        connection.commit()
+                    print("enregistrement terminé !")
+                    save_mode_substitut = False
+                elif save_BDD == 2:
+                    print("\n enregistrement non effectuée, \n retour vers le menu")
+                    save_mode_substitut = False
+                elif save_BDD > 2 :
+                    print("{} n'est pas dans les numéros proposés\n".format(save_BDD))
+            except ValueError :
+                if len(save_BDD) > 1 :
+                    print("\nOops! {} est un mot, veuillez recommencer : \n".format(save_BDD))
+                else :
+                    print("\nOops! {} est une lettre, veuillez recommencer : \n".format(save_BDD))        
 
 class Consult():
     def consult_compare():
@@ -254,7 +304,7 @@ class Consult():
             connection.commit()
 
         with connection.cursor() as cursor:
-            sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE, PRODUITS.URL, PRODUITS.STORE FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
+            sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE, PRODUITS.URL FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
             cursor.execute(sql, ())
             my_substituts = cursor.fetchall()
             connection.commit()
@@ -319,9 +369,9 @@ class MainLoop(object):
                 user_product_choice = int(input("Choissisez le numéro de produits : "))
                 user_product_choice -= 1
                 print("\n vous avez choisi : " + PRODUCTS[user_category_choice][user_product_choice])
-
+                name_product_choice = PRODUCTS[user_category_choice][user_product_choice]
                 """Dowload the products"""
-                MainLoopBDD(category_french = user_category_choice, category_english = category_to_english).test_category_in_BDD()
+                MainLoopBDD(category_french = user_category_choice, category_english = category_to_english, user_product = name_product_choice).test_category_in_BDD()
 
 
             if terminal_mode == 2 :
@@ -348,4 +398,7 @@ class MainLoop(object):
                 print("\nOops! {} est un mot, veuillez recommencer : \n".format(terminal_mode))
             else :
                 print("\nOops! {} est une lettre, veuillez recommencer : \n".format(terminal_mode))
-MainLoop()
+
+
+if __name__ == '__main__':
+    MainLoop()
