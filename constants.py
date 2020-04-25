@@ -1,10 +1,12 @@
 """constantes connection"""
-
+import os
 HOST='127.0.0.1'
-USER='root'
-PASSWORD='azerty'
+USER='thomas'
+PASSWORD= os.environ.get("SECRET_PASSWORD_P11")
 DB='P11'
 PORT = 3306
+
+
 
 CATEGORIES = "`CATEGORIES`"
 PRODUITS = "`PRODUITS`"

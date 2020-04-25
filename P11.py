@@ -32,7 +32,7 @@ try :
                                      port = PORT,
                                      cursorclass=pymysql.cursors.DictCursor)
 except :
-        print("Erreur de connexion, veuillez vérifier les paramètres dans le fichiers constants.py")
+        print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
 
 class ExportPdf():
     """New program to export substitutes in PDF format"""
@@ -341,7 +341,7 @@ class MainLoop(object):
     while continu:
         try :
             print(transition)
-            terminal_mode = input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer mes produits \n4 - exporter PDF \n5 - Sortir du programme ? \n \n>>> ")
+            terminal_mode = input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer mes produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n \n>>> ")
             terminal_mode = int(terminal_mode)
 
             if terminal_mode == 1 :
@@ -382,7 +382,7 @@ class MainLoop(object):
                 if verif_user == 1 :
                     CleaningDB.cleaning_tables()
                     CleaningDB.reset_counter()
-                    print("Base de données nettoyer ! ")
+                    print("Base de données nettoyée ! ")
                 else :
                     pass
                     print('Données restaurées ! ')
