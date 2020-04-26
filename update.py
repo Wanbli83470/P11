@@ -17,20 +17,36 @@ try :
 except :
         print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
 
+def sql_to_list(sql_=""):
+    list_ID = []
+    for d in sql_ :
+        for key,val in d.items():
+            print(val)
+            list_ID.append(val)
+    return list_ID
+
+
 def delete_false():
     with connection.cursor() as cursor:
         sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
         cursor.execute(sql, ())
-        count = cursor.fetchall()
-        print(count)
-        count = str(count)
-        print(type(count))
+        PRODUIT_ID = cursor.fetchall()
+        print(PRODUIT_ID)
+        list_ID = sql_to_list(sql_=PRODUIT_ID)
 
-        for i in range(1,2) :
-            sql = "DELETE FROM PRODUITS WHERE ID=4"
-            print(sql)
-            cursor.execute(sql, ())
-            connection.commit()
+        """Récupurer nombre produit"""
+        sql_count = "SELECT MAX(ID) FROM PRODUITS"
+        cursor.execute(sql_count, ())
+        MAX_ID = cursor.fetchone()
+        MAX_ID = MAX_ID.pop("MAX(ID)")
+        print(type(MAX_ID))
+
+        for i in range(1,MAX_ID+1) :
+            if not i in list_ID :
+                sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
+                print(sql)
+                cursor.execute(sql, ())
+                connection.commit()
 
 
 delete_false()
