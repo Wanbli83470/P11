@@ -117,10 +117,11 @@ class MainLoopBDD():
             return True
 
         else :
-            print("Catégorie Nouvelle")
+            LINK_OFF_ = "https://fr-en.openfoodfacts.org/category/{}.json".format(self.category_english)
+            print("Catégorie nouvelle")
             with connection.cursor() as cursor:
                 sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
-                cursor.execute(sql, (self.category_french, "lien hardcodé"))
+                cursor.execute(sql, (self.category_french, LINK_OFF_))
             connection.commit()
             DownloadProduct.get_product(max_pages = 1, requête=self.category_english)
             DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
