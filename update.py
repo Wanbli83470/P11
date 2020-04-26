@@ -26,13 +26,13 @@ def sql_to_list(sql_=""):
     return list_ID
 
 
-def delete_false():
+def update():
     with connection.cursor() as cursor:
         sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
         cursor.execute(sql, ())
         PRODUIT_ID = cursor.fetchall()
         print(PRODUIT_ID)
-        list_ID = sql_to_list(sql_=PRODUIT_ID)
+        list_ID_produit = sql_to_list(sql_=PRODUIT_ID)
 
         """Récupurer nombre produit"""
         sql_count = "SELECT MAX(ID) FROM PRODUITS"
@@ -42,20 +42,18 @@ def delete_false():
         print(type(MAX_ID))
 
         for i in range(1,MAX_ID+1) :
-            if not i in list_ID :
+            if not i in list_ID_produit :
                 sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
-                print(sql)
                 cursor.execute(sql, ())
                 connection.commit()
 
+        """Récupérer les URL en anglais"""
 
-delete_false()
-"""
-DELETE FROM `PRODUITS` WHERE `ID`
-DELETE FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID != SUBSTITUTS.PRODUIT_ID
-Requête SQL selectionnant les ID des produits étant enregistrés comme substituts
+        sql_get_category = "SELECT `LINK_OFF` FROM `CATEGORIES`"
+        cursor.execute(sql_get_category, ())
+        sql_link_category = cursor.fetchall()
+        sql_link_category = sql_to_list(sql_=sql_link_category)
+        print(sql_link_category)
+        """Télécharger les nouvelles données"""
 
-
-
-
-DELETE FROM PRODUITS WHERE PRODUITS.ID NOT IN (SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID)"""
+update()

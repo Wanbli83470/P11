@@ -1,4 +1,5 @@
- #!/usr/bin/env python
+#!/usr/bin/python
+
  # -*- coding: utf-8 -*-
  #  Copyright 2019 Thomas ESTIVAL
 """use of the reportlab library to generate the PDF and uses of the modules units to work in cm
@@ -21,6 +22,7 @@ import pymysql.cursors
 
 from constants import *
 
+
 """CONNECT TO THE DATABASE"""
 
 try :
@@ -33,6 +35,12 @@ try :
                                      cursorclass=pymysql.cursors.DictCursor)
 except :
         print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
+def sql_to_list(sql_=""):
+    list_ID = []
+    for d in sql_ :
+        for key,val in d.items():
+            list_ID.append(val)
+    return list_ID
 
 class ExportPdf():
     """New program to export substitutes in PDF format"""
@@ -92,6 +100,7 @@ class ExportPdf():
 
 
         pdf.save()
+        print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
 
 class MainLoopBDD():
     def __init__(self, category_french="", category_english="", user_product=""):
@@ -123,14 +132,14 @@ class MainLoopBDD():
                 sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
                 cursor.execute(sql, (self.category_french, LINK_OFF_))
             connection.commit()
-            DownloadProduct.get_product(max_pages = 1, requête=self.category_english)
+            DownloadProduct.get_product(max_pages = 2, requête=self.category_english)
             DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
             return False
 
-class DownloadProduct(MainLoopBDD):
+class DownloadProduct():
 
 
-    def get_product(max_pages=5, requête="", self=""):
+    def get_product(max_pages=5, requête=""):
         # Creation list for BDD
         url = []
         name = []
@@ -305,7 +314,14 @@ class Consult():
             connection.commit()
 
         with connection.cursor() as cursor:
-            sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE, PRODUITS.URL FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
+            sql = "SELECT ID FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
+            cursor.execute(sql, ())
+            my_products_id = cursor.fetchall()                    
+            connection.commit()
+            my_products_id = sql_to_list(sql_=my_products_id)
+
+        with connection.cursor() as cursor:
+            sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
             my_substituts = cursor.fetchall()
             connection.commit()
@@ -313,28 +329,33 @@ class Consult():
         index = -1
         for i in my_products :
             for j, k in i.items():
-                print("\nPour remplacer : " + k)
+                print("\nPour remplacer : " + k + " ID = " + str(my_products_id[index+1]))
                 index += 1
                 print(f"MON SUBSTITUT : {my_substituts[index]}")
 
 class CleaningDB():
+    
     """Class to clean the database with sql requests Delete and alter"""
-    def cleaning_tables():
+    def cleaning_all_products():
         """Deleting data with a python loop interacting with SQL"""
         with connection.cursor() as cursor:
-            for t in TABLES:
-                sql = "DELETE FROM %s;" %(t)
+            for d in TABLES:
+                sql = "DELETE FROM %s;" %(d)
                 cursor.execute(sql, ())
                 connection.commit()
-    
-    def reset_counter():
-        """resets the counters with auto_increment"""
+            """resets the counters with auto_increment"""
+            for r in TABLES:
+                sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (r)
+                cursor.execute(sql, ())
+                connection.commit()
 
+    def cleaning_only_product():
+        Consult.consult_compare()
+        choice_id = input("Tapez l'ID du produit que vous souhaitez supprimer\n>>> ")
         with connection.cursor() as cursor:
-            for t in TABLES:
-                sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (t)
-                cursor.execute(sql, ())
-                connection.commit()
+            sql = "DELETE FROM `SUBSTITUTS` WHERE ID=%s" % choice_id
+            cursor.execute(sql, ())
+            connection.commit()
 
 class MainLoop(object):
     """Main loop of the program"""  
@@ -342,7 +363,7 @@ class MainLoop(object):
     while continu:
         try :
             print(transition)
-            terminal_mode = input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer mes produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n \n>>> ")
+            terminal_mode = input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n \n>>> ")
             terminal_mode = int(terminal_mode)
 
             if terminal_mode == 1 :
@@ -378,12 +399,12 @@ class MainLoop(object):
                 Consult.consult_compare()
 
             if terminal_mode == 3 :
-                verif_user = int(input("êtes vous sûr de votre choix, cette action est irréversible ! \n 1 : OUI \n 2 : NON \n >>>"))
-
-                if verif_user == 1 :
-                    CleaningDB.cleaning_tables()
-                    CleaningDB.reset_counter()
+                choice_nb_products = int(input("1 - Supprimer tous les produits\n2 - Supprimer un produit\n3 - Sortir \n>>> "))
+                if choice_nb_products == 1 :
+                    CleaningDB.cleaning_all_products()
                     print("Base de données nettoyée ! ")
+                elif choice_nb_products == 2 :
+                    CleaningDB.cleaning_only_product()
                 else :
                     pass
                     print('Données restaurées ! ')
@@ -399,6 +420,4 @@ class MainLoop(object):
             else :
                 print("\nOops! {} est une lettre, veuillez recommencer : \n".format(terminal_mode))
 
-
-if __name__ == '__main__':
-    MainLoop()
+MainLoop()

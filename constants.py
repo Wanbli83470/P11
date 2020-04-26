@@ -2,7 +2,9 @@
 import os
 HOST='127.0.0.1'
 USER='thomas'
-PASSWORD= os.environ.get("SECRET_PASSWORD_P11")
+PASSWORD = "jpmfmaemp73%"
+
+# PASSWORD= os.environ.get("SECRET_PASSWORD_P11")
 DB='P11'
 PORT = 3306
 
