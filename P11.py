@@ -19,7 +19,7 @@ import requests as r
 import json
 import pymysql
 import pymysql.cursors
-
+import time
 from constants import *
 
 
@@ -230,7 +230,7 @@ class DownloadProduct():
             list_position += 1
        
     def save_substituts(name_categorie, user_product):
-        print("Enregistrement de substituts")
+        print(">>>>>> Nos propositions de substituts ci dessous ! <<<<<<<<<")
 
         with connection.cursor() as cursor:
 
@@ -319,7 +319,9 @@ class Consult():
             cursor.execute(sql, ())
             my_substituts = cursor.fetchall()
             connection.commit()
-
+        if my_substituts == ():
+            print("Vous n'avez pas encore enregistré de produits !")
+            time.sleep(1.5)
         index = -1
         for i in my_products :
             for j, k in i.items():
@@ -415,5 +417,4 @@ def MainLoop():
                 print("\nOops! {} est une lettre, veuillez recommencer : \n".format(terminal_mode))
 
 if __name__ == '__main__':
-    print("mon script est exécuté directement")
     MainLoop()

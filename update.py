@@ -5,6 +5,7 @@ import re
 from constants import *
 """CONNECT TO THE DATABASE"""
 from P11 import DownloadProduct
+import time
 try :
     connection = pymysql.connect(host=HOST, #variable in file constantes.py
                                      user=USER,
@@ -22,7 +23,6 @@ def sql_to_list(sql_=""):
         for key,val in d.items():
             list_ID.append(val)
     return list_ID
-
 
 def update():
     with connection.cursor() as cursor:
@@ -45,6 +45,7 @@ def update():
 
         """Récupérer les catégories en anglais"""
         print(">>> Récupération de vos catégories de produits")
+        time.sleep(3)
         sql_get_category = "SELECT `NOM` FROM `CATEGORIES`"
         cursor.execute(sql_get_category, ())
         sql_link_category = cursor.fetchall()
