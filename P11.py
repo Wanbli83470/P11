@@ -33,8 +33,12 @@ try :
                                      charset='utf8mb4',
                                      port = PORT,
                                      cursorclass=pymysql.cursors.DictCursor)
+
+    
 except :
         print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
+
+
 def sql_to_list(sql_=""):
     list_ID = []
     for d in sql_ :
@@ -127,7 +131,7 @@ class MainLoopBDD():
 
         else :
             LINK_OFF_ = "https://fr-en.openfoodfacts.org/category/{}.json".format(self.category_english)
-            print("Catégorie nouvelle")
+            print("Nouvelle catégorie de produits !")
             with connection.cursor() as cursor:
                 sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
                 cursor.execute(sql, (self.category_french, LINK_OFF_))
@@ -226,14 +230,12 @@ class DownloadProduct():
         list_position = 0
 
         while list_position < nb_product :
-            print("rentre boucle")
             with connection.cursor() as cursor:
                 sql = "INSERT INTO PRODUITS (`NOM`,`URL`,`NUTRISCORE`, `CATEGORIE_ID`) VALUES (%s, %s, %s, %s)"
                 cursor.execute(sql, (name[list_position], url[list_position], ns[list_position], N_ID))
                     
             connection.commit()
             list_position += 1
-            print(list_position)
        
     def save_substituts(name_categorie, user_product):
         print("Enregistrement de substituts")
@@ -357,7 +359,7 @@ class CleaningDB():
             cursor.execute(sql, ())
             connection.commit()
 
-class MainLoop(object):
+def MainLoop():
     """Main loop of the program"""  
     continu = True
     while continu:

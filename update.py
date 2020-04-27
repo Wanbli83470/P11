@@ -3,7 +3,6 @@ import pymysql
 import pymysql.cursors
 import re
 from constants import *
-
 """CONNECT TO THE DATABASE"""
 
 try :
@@ -21,7 +20,6 @@ def sql_to_list(sql_=""):
     list_ID = []
     for d in sql_ :
         for key,val in d.items():
-            print(val)
             list_ID.append(val)
     return list_ID
 
@@ -31,7 +29,6 @@ def update():
         sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
         cursor.execute(sql, ())
         PRODUIT_ID = cursor.fetchall()
-        print(PRODUIT_ID)
         list_ID_produit = sql_to_list(sql_=PRODUIT_ID)
 
         """Récupurer nombre produit"""
@@ -39,7 +36,7 @@ def update():
         cursor.execute(sql_count, ())
         MAX_ID = cursor.fetchone()
         MAX_ID = MAX_ID.pop("MAX(ID)")
-        print(type(MAX_ID))
+
 
         for i in range(1,MAX_ID+1) :
             if not i in list_ID_produit :
@@ -47,13 +44,23 @@ def update():
                 cursor.execute(sql, ())
                 connection.commit()
 
-        """Récupérer les URL en anglais"""
+        """Récupérer les catégories en anglais"""
 
-        sql_get_category = "SELECT `LINK_OFF` FROM `CATEGORIES`"
+        sql_get_category = "SELECT `NOM` FROM `CATEGORIES`"
         cursor.execute(sql_get_category, ())
         sql_link_category = cursor.fetchall()
         sql_link_category = sql_to_list(sql_=sql_link_category)
+        temp = []
+        while len(sql_link_category)>0:
+            for l in sql_link_category :
+                temp.append(CATEGORIES_TO_ENGLISH[sql_link_category.pop()])
+                print(temp)
+
+        sql_link_category = temp
         print(sql_link_category)
+
         """Télécharger les nouvelles données"""
+
+
 
 update()
