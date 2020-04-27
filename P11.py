@@ -136,28 +136,26 @@ class MainLoopBDD():
                 sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
                 cursor.execute(sql, (self.category_french, LINK_OFF_))
             connection.commit()
-            DownloadProduct.get_product(max_pages = 2, requête=self.category_english)
+            DownloadProduct.get_product(max_pages = 3, requête=self.category_english)
             DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
             return False
 
 class DownloadProduct():
 
 
-    def get_product(max_pages=5, requête=""):
+    def get_product(max_pages=3, requête=""):
         # Creation list for BDD
         url = []
         name = []
         ns = []
         link_pictures = []
 
-        print("la requête retourne un code : {}".format(requête))
         dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/1.json".format(requête))
         info = dynamic_link.json()
         count = info['count']
         page_size = info['page_size']
 
         nbPages = int(math.floor(count / page_size) + 1)  # On déduit le nombre de pages
-        print("nombre de pages = " + str(nbPages))
         i = 0
         live_page = 1
         while live_page <= nbPages:
@@ -179,17 +177,13 @@ class DownloadProduct():
                     # Deleting products without images
 
                     except KeyError:
-                        print("un produit sans image; n°{}".format(i))
                         numero = i
-
                         del url[numero]
                         del name[numero]
                         del ns[numero]
 
             live_page += 1
             dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/{}.json".format(requête, live_page))
-            print(live_page)
-            print(dynamic_link)
             if live_page > max_pages:
                 break
 
@@ -209,21 +203,19 @@ class DownloadProduct():
             elif i == 'e':
                 ns[n] = 5
 
-        print(ns)
-        print("{} élément dans la liste".format(len(link_pictures)))
         with connection.cursor() as cursor:
 
             sql = "SELECT MAX(`ID`) FROM CATEGORIES"
             cursor.execute(sql, ())
             id_category = cursor.fetchall()
-        print(id_category)
+
         id_category = str(id_category)
         N_ID = ""
         for x in id_category :
             if x in ("0","1","2","3","4","5","6","7","8","9") :
                 N_ID+=(x)
 
-        print(N_ID)
+
         N_ID = int(N_ID)
 
         nb_product = len(link_pictures)
@@ -422,4 +414,6 @@ def MainLoop():
             else :
                 print("\nOops! {} est une lettre, veuillez recommencer : \n".format(terminal_mode))
 
-MainLoop()
+if __name__ == '__main__':
+    print("mon script est exécuté directement")
+    MainLoop()

@@ -4,7 +4,7 @@ import pymysql.cursors
 import re
 from constants import *
 """CONNECT TO THE DATABASE"""
-
+from P11 import DownloadProduct
 try :
     connection = pymysql.connect(host=HOST, #variable in file constantes.py
                                      user=USER,
@@ -37,7 +37,6 @@ def update():
         MAX_ID = cursor.fetchone()
         MAX_ID = MAX_ID.pop("MAX(ID)")
 
-
         for i in range(1,MAX_ID+1) :
             if not i in list_ID_produit :
                 sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
@@ -45,7 +44,7 @@ def update():
                 connection.commit()
 
         """Récupérer les catégories en anglais"""
-
+        print(">>> Récupération de vos catégories de produits")
         sql_get_category = "SELECT `NOM` FROM `CATEGORIES`"
         cursor.execute(sql_get_category, ())
         sql_link_category = cursor.fetchall()
@@ -54,13 +53,12 @@ def update():
         while len(sql_link_category)>0:
             for l in sql_link_category :
                 temp.append(CATEGORIES_TO_ENGLISH[sql_link_category.pop()])
-                print(temp)
 
         sql_link_category = temp
-        print(sql_link_category)
-
         """Télécharger les nouvelles données"""
-
-
+        print(">>> Mise à jour de vos données")
+        for i in sql_link_category :
+            DownloadProduct.get_product(max_pages=1, requête=i)
+        print(">>> Base de données actualisée")
 
 update()
