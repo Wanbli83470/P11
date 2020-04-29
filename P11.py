@@ -20,20 +20,7 @@ import pymysql
 import pymysql.cursors
 from constants import *
 """CONNECT TO THE DATABASE"""
-
-try:
-    connection = pymysql.connect(host=HOST, #variable in file constantes.py
-                                 user=USER,
-                                 password=PASSWORD,
-                                 db=DB,
-                                 charset='utf8mb4',
-                                 port=PORT,
-                                 cursorclass=pymysql.cursors.DictCursor)
-
-except:
-    print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
-
-
+from connect import *
 def sql_to_list(sql_=""):
     list_id = []
     for d in sql_:
@@ -115,30 +102,30 @@ class MainLoopBDD:
             connection.commit()
         category_exist_list = []    
         
-        for c in category_exist_sql :
+        for c in category_exist_sql:
             for d, e in c.items():
                 category_exist_list.append(e)
         
-        if self.category_french in category_exist_list :
+        if self.category_french in category_exist_list:
             print("Catégorie existante")
-            DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
+            DownloadProduct.save_substituts(name_categorie=self.category_french, user_product=self.user_product)
             return True
 
-        else :
-            LINK_OFF_ = "https://fr-en.openfoodfacts.org/category/{}.json".format(self.category_english)
+        else:
+            link_off = "https://fr-en.openfoodfacts.org/category/{}.json".format(self.category_english)
             print("Nouvelle catégorie de produits !")
             with connection.cursor() as cursor:
                 sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
-                cursor.execute(sql, (self.category_french, LINK_OFF_))
+                cursor.execute(sql, (self.category_french, link_off))
             connection.commit()
-            DownloadProduct.get_product(max_pages = 3, requete=self.category_english)
-            DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
+            DownloadProduct.get_product(max_pages=3, requete=self.category_english)
+            DownloadProduct.save_substituts(name_categorie=self.category_french, user_product=self.user_product)
             return False
 
 
 class DownloadProduct:
 
-    def get_product(max_pages = int, requete=""):
+    def get_product(max_pages=int, requete=""):
         # Creation list for BDD
         url, name, nutriscore, link_pictures = [], [], [], []
         dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/1.json".format(requete))
@@ -362,7 +349,7 @@ def update():
         """Télécharger les nouvelles données"""
         print(">>> Mise à jour de vos données")
         for i in sql_link_category:
-            DownloadProduct.get_product(max_pages= 1, requete=i)
+            DownloadProduct.get_product(max_pages=1, requete=i)
         print(">>> Base de données actualisée")
 
 
