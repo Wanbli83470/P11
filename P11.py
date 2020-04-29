@@ -224,7 +224,7 @@ class DownloadProduct:
         link_result = link_result['URL']
         n_link = ''
         for x in link_result :
-            if x in ("0","1","2","3","4","5","6","7","8","9"):
+            if x in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"):
                 n_link += (x)
                 if len(n_link) == 13:
                     break
