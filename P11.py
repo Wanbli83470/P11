@@ -11,44 +11,45 @@ Import the personnals parameters with a constants.py file
 """
 
 import math
-import re
+import json
+import time
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
-
 import requests as r
-import json
 import pymysql
 import pymysql.cursors
-import time
 from constants import *
 """CONNECT TO THE DATABASE"""
 
-try :
+try:
     connection = pymysql.connect(host=HOST, #variable in file constantes.py
-                                     user=USER,
-                                     password=PASSWORD,
-                                     db=DB,
-                                     charset='utf8mb4',
-                                     port = PORT,
-                                     cursorclass=pymysql.cursors.DictCursor)
+                                 user=USER,
+                                 password=PASSWORD,
+                                 db=DB,
+                                 charset='utf8mb4',
+                                 port=PORT,
+                                 cursorclass=pymysql.cursors.DictCursor)
 
-    
-except :
-        print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
+except:
+    print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
+
 
 def sql_to_list(sql_=""):
-    list_ID = []
-    for d in sql_ :
-        for key,val in d.items():
-            list_ID.append(val)
-    return list_ID
-def test_plural(vartest):
+    list_id = []
+    for d in sql_:
+        for key, val in d.items():
+            list_id.append(val)
+    return list_id
+
+
+def test_plural(vartest: ""):
     if vartest > 1:
         return "s"
     else:
         return ""
 
-class ExportPdf():
+
+class ExportPdf:
     """New program to export substitutes in PDF format"""
     def export():
         """recovery of the number of products with count and registration of substitutes in the PDF"""
@@ -61,27 +62,26 @@ class ExportPdf():
         name = input("Quelle est votre nom ? \n>>> ")
         pdf = canvas.Canvas("substituts-{}.pdf".format(name))
         pdf.drawString(3*cm, 28*cm, u'Bienvenue {} vous avez enregistré {} produit{}'.format(name, count, test_plural(vartest=count)))
-        pdf.line(7.5*cm,23*cm,7.5*cm,0*cm)
-        pdf.line(14.5*cm,23*cm,14.5*cm,0*cm)
+        pdf.line(7.5*cm, 23*cm, 7.5*cm, 0*cm)
+        pdf.line(14.5*cm, 23*cm, 14.5*cm, 0*cm)
         #Create the column
 
         pdf.drawString(2*cm, 23.5*cm, u'Mes habitudes')
         pdf.drawString(9.5*cm, 23.5*cm, u'Mes substituts')
         pdf.drawString(17*cm, 23.5*cm, u'Magasins')
         #Create the lines
-        nb_line, x, y = 21, 21, 21
+        nb_line, x_position, y_position = 21, 21, 21
 
         #Get the input_product from table SUBSTITUTS from Database
-        with connection :
+        with connection:
             cur = connection.cursor()
             cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
             data_sub = cur.fetchall()
-        
 
         position = 20.4
-        for s in data_sub :
+        for s in data_sub:
 
-            with connection :
+            with connection:
                 cur = connection.cursor()
                 cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
                 data_sub2 = cur.fetchall()
@@ -89,19 +89,19 @@ class ExportPdf():
 
             pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
             pdf.drawString(15.5*cm, position*cm, s["STORE"])
-            pdf.line(0*cm,x*cm,21*cm,y*cm)
+            pdf.line(0*cm, x_position*cm, 21*cm, y_position*cm)
             nb_line -= 1
             position -= 1
-            x -= 1
-            y -= 1
+            x_position -= 1
+            y_position -= 1
 
         #Get the substituts from table SUBSTITUS from Database
-
 
         pdf.save()
         print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
 
-class MainLoopBDD():
+
+class MainLoopBDD:
     def __init__(self, category_french="", category_english="", user_product=""):
         self.category_french = category_french
         self.category_english = category_english
@@ -131,24 +131,24 @@ class MainLoopBDD():
                 sql = "INSERT INTO CATEGORIES (`NOM`,`LINK_OFF`) VALUES (%s, %s)"
                 cursor.execute(sql, (self.category_french, LINK_OFF_))
             connection.commit()
-            DownloadProduct.get_product(max_pages = 3, requête=self.category_english)
+            DownloadProduct.get_product(max_pages = 3, requete=self.category_english)
             DownloadProduct.save_substituts(name_categorie=self.category_french, user_product = self.user_product)
             return False
 
-class DownloadProduct():
 
+class DownloadProduct:
 
-    def get_product(max_pages=3, requête=""):
+    def get_product(max_pages = int, requete=""):
         # Creation list for BDD
-        url, name, ns, link_pictures = [], [], [], []
-        dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/1.json".format(requête))
+        url, name, nutriscore, link_pictures = [], [], [], []
+        dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/1.json".format(requete))
         info = dynamic_link.json()
         count = info['count']
         page_size = info['page_size']
 
-        nbPages = int(math.floor(count / page_size) + 1)  # On déduit le nombre de pages
+        nb_pages = int(math.floor(count / page_size) + 1)  # On déduit le nombre de pages
         i, live_page = 0, 1
-        while live_page <= nbPages:
+        while live_page <= nb_pages:
             dynamic_json = dynamic_link.json()
             for data in dynamic_json["products"]:
 
@@ -158,29 +158,29 @@ class DownloadProduct():
                     try:
                         url.append((data["url"]))
                         name.append((data["product_name"]))
-                        ns.append((data["nutrition_grades_tags"][0]))
+                        nutriscore.append((data["nutrition_grades_tags"][0]))
                         link_pictures.append((data["image_url"]))
                         i += 1
 
                     # Deleting products without images
 
                     except KeyError:
-                        numero = i
-                        del url[numero]
-                        del name[numero]
-                        del ns[numero]
+                        digit = i
+                        del url[digit]
+                        del name[digit]
+                        del nutriscore[digit]
 
             live_page += 1
-            dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/{}.json".format(requête, live_page))
+            dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/{}.json".format(requete, live_page))
             if live_page > max_pages:
                 break
 
             # Convert number to letters
-        ns_dico={"a":1, "b":2, "c":3, "d":4, "e":5}
-        ns_sort=[]
-        for i in ns:
+        ns_dico = {"a": 1, "b": 2, "c": 3, "d": 4, "e": 5}
+        ns_sort = []
+        for i in nutriscore:
             ns_sort.append(ns_dico[i])
-        ns=ns_sort
+        nutriscore = ns_sort
         del ns_sort
 
         with connection.cursor() as cursor:
@@ -191,14 +191,15 @@ class DownloadProduct():
         nb_product = len(link_pictures)
         list_position = 0
 
-        while list_position < nb_product :
+        while list_position < nb_product:
             with connection.cursor() as cursor:
                 sql = "INSERT INTO PRODUITS (`NOM`,`URL`,`NUTRISCORE`, `CATEGORIE_ID`) VALUES (%s, %s, %s, %s)"
-                cursor.execute(sql, (name[list_position], url[list_position], ns[list_position], id_category))
+                cursor.execute(sql, (name[list_position], url[list_position], nutriscore[list_position], id_category))
                     
             connection.commit()
             list_position += 1
-       
+        del url, name, nutriscore, link_pictures
+
     def save_substituts(name_categorie, user_product):
         print(">>>>>> Nos propositions de substituts ci dessous ! <<<<<<<<<")
 
@@ -207,13 +208,12 @@ class DownloadProduct():
             sql = "SELECT PRODUITS.NOM, PRODUITS.ID FROM PRODUITS INNER JOIN CATEGORIES ON PRODUITS.CATEGORIE_ID = CATEGORIES.ID WHERE CATEGORIES.NOM = %s AND NUTRISCORE < 3 LIMIT 5"
             cursor.execute(sql, (name_categorie))
             result = str(cursor.fetchall())
-            result = result.replace('{','\n')
-            result = result.replace('}','')
+            result = result.replace('{', '\n')
+            result = result.replace('}', '')
             print(result)
 
-
         choice_substitut = input("\n Indiquer le numéro du produit que vous souhaitez consulter ")
-        print(transition)
+        print(TRANSITION)
         
         with connection.cursor() as cursor:
 
@@ -224,9 +224,9 @@ class DownloadProduct():
         link_result = link_result['URL']
         n_link = ''
         for x in link_result :
-            if x in ("0","1","2","3","4","5","6","7","8","9") :
-                n_link+=(x)
-                if len(n_link) == 13 :
+            if x in ("0","1","2","3","4","5","6","7","8","9"):
+                n_link += (x)
+                if len(n_link) == 13:
                     break
                 
 
@@ -258,15 +258,17 @@ class DownloadProduct():
                 elif save_BDD == 2:
                     print("\nenregistrement non effectué, \n>>>retour vers le menu")
                     save_mode_substitut = False
-                elif save_BDD > 2 :
+                elif save_BDD > 2:
                     print("\n{} n'est pas dans les numéros proposés\n".format(save_BDD))
-            except ValueError :
-                if len(save_BDD) > 1 :
+            except ValueError:
+                if len(save_BDD) > 1:
                     print("\nOops! {} est un mot, veuillez recommencer : \n".format(save_BDD))
                 else :
                     print("\nOops! {} est une lettre, veuillez recommencer : \n".format(save_BDD))        
 
+
 class Consult():
+
     def consult_compare():
 
         """Class to consult products already registered by comparing with the initial product"""
@@ -275,13 +277,13 @@ class Consult():
             cursor.execute(sql, ())
             my_products = cursor.fetchall()                    
             connection.commit()
-        """Select product_id for present the comparaison"""
+            """Select product_id for present the comparaison"""
             sql = "SELECT ID FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
             my_products_id = cursor.fetchall()                    
             connection.commit()
             my_products_id = sql_to_list(sql_=my_products_id)
-        """Select caracteristics of my substituts"""
+            """Select caracteristics of my substituts"""
             sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
             my_substituts = cursor.fetchall()
@@ -296,19 +298,20 @@ class Consult():
                 index += 1
                 print(f"MON SUBSTITUT : {my_substituts[index]}")
 
+
 class CleaningDB():
-    
+
     """Class to clean the database with sql requests Delete and alter"""
     def cleaning_all_products():
         """Deleting data with a python loop interacting with SQL"""
         with connection.cursor() as cursor:
-            for d in TABLES:
-                sql = "DELETE FROM %s;" %(d)
+            for delete in TABLES:
+                sql = "DELETE FROM %s;" %(delete)
                 cursor.execute(sql, ())
                 connection.commit()
             """resets the counters with auto_increment"""
-            for r in TABLES:
-                sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (r)
+            for reset in TABLES:
+                sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (reset)
                 cursor.execute(sql, ())
                 connection.commit()
 
@@ -320,21 +323,22 @@ class CleaningDB():
             cursor.execute(sql, ())
             connection.commit()
 
+
 def update():
     with connection.cursor() as cursor:
         sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
         cursor.execute(sql, ())
-        PRODUIT_ID = cursor.fetchall()
-        list_ID_produit = sql_to_list(sql_=PRODUIT_ID)
+        list_id_products = cursor.fetchall()
+        list_id_products = sql_to_list(sql_=list_id_products)
 
         """Récupurer nombre produit"""
         sql_count = "SELECT MAX(ID) FROM PRODUITS"
         cursor.execute(sql_count, ())
-        MAX_ID = cursor.fetchone()
-        MAX_ID = MAX_ID.pop("MAX(ID)")
+        max_id = cursor.fetchone()
+        max_id = max_id.pop("MAX(ID)")
 
-        for i in range(1,MAX_ID+1) :
-            if not i in list_ID_produit :
+        for i in range(1, max_id+1):
+            if not i in list_id_products:
                 sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
                 cursor.execute(sql, ())
                 connection.commit()
@@ -351,25 +355,27 @@ def update():
         sql_link_category = cursor.fetchall()
         sql_link_category = sql_to_list(sql_=sql_link_category)
         temp = []
-        while len(sql_link_category)>0:
-            for l in sql_link_category :
+        while len(sql_link_category) > 0:
+            for l in sql_link_category:
                 temp.append(CATEGORIES_TO_ENGLISH[sql_link_category.pop()])
 
         sql_link_category = temp
+        del temp
         """Télécharger les nouvelles données"""
         print(">>> Mise à jour de vos données")
-        for i in sql_link_category :
-            DownloadProduct.get_product(max_pages=1, requête=i)
+        for i in sql_link_category:
+            DownloadProduct.get_product(max_pages= 1, requete=i)
         print(">>> Base de données actualisée")
 
-def MainLoop():
+
+class MainLoop:
     """Main loop of the program"""  
     continu = True
     while continu:
-        try :
-            print(transition)
+        try:
+            print(TRANSITION)
             terminal_mode = int(input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n6 - Actualiser les produits ? \n>>> "))
-            if terminal_mode == 1 :
+            if terminal_mode == 1:
 
                 """ Select the category"""
                 
@@ -395,36 +401,37 @@ def MainLoop():
                 print("\n vous avez choisi : " + PRODUCTS[user_category_choice][user_product_choice])
                 name_product_choice = PRODUCTS[user_category_choice][user_product_choice]
                 """Dowload the products"""
-                MainLoopBDD(category_french = user_category_choice, category_english = category_to_english, user_product = name_product_choice).test_category_in_BDD()
+                MainLoopBDD(category_french=user_category_choice, category_english=category_to_english, user_product=name_product_choice).test_category_in_BDD()
 
-
-            elif terminal_mode == 2 :
+            elif terminal_mode == 2:
                 Consult.consult_compare()
 
-            elif terminal_mode == 3 :
+            elif terminal_mode == 3:
                 choice_nb_products = int(input("1 - Supprimer tous les produits\n2 - Supprimer un produit\n3 - Revenir à l'accueil \n>>> "))
-                if choice_nb_products == 1 :
+                if choice_nb_products == 1:
                     CleaningDB.cleaning_all_products()
                     print("Base de données nettoyée ! ")
-                elif choice_nb_products == 2 :
+                elif choice_nb_products == 2:
                     CleaningDB.cleaning_only_product()
                     print("Produit supprimé ! ")
-                else :
+                else:
                     print('Données restaurées ! ')
-            elif terminal_mode == 4 :
+            elif terminal_mode == 4:
                 ExportPdf.export()
 
-            elif terminal_mode == 5 :
+            elif terminal_mode == 5:
                 print("Merci d'utiliser notre programme, au revoir ! ")
                 continu = False
 
-            elif terminal_mode == 6 :
+            elif terminal_mode == 6:
                 update()
 
-            elif terminal_mode > 6 :
+            elif terminal_mode > 6 or terminal_mode < 1:
                 print("\nOops! {} n'est pas dans les propositions, veuillez recommencer : \n".format(terminal_mode))  
 
         except ValueError:
             print("\nOops! Ce n'est pas un chiffre, veuillez recommencer :")
+
+
 if __name__ == '__main__':
     MainLoop()
