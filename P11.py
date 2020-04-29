@@ -21,8 +21,6 @@ import pymysql
 import pymysql.cursors
 import time
 from constants import *
-
-
 """CONNECT TO THE DATABASE"""
 
 try :
@@ -38,13 +36,17 @@ try :
 except :
         print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
 
-
 def sql_to_list(sql_=""):
     list_ID = []
     for d in sql_ :
         for key,val in d.items():
             list_ID.append(val)
     return list_ID
+def test_plural(vartest):
+    if vartest > 1:
+        return "s"
+    else:
+        return ""
 
 class ExportPdf():
     """New program to export substitutes in PDF format"""
@@ -53,28 +55,21 @@ class ExportPdf():
         with connection.cursor() as cursor:
             sql = "SELECT COUNT(*) FROM SUBSTITUTS"
             cursor.execute(sql, ())
-            count = cursor.fetchall()
-            print(count)
-            count = str(count)
-            expression = re.compile("([0-9])")
-            tes = expression.findall(count)
-            print(tes)
-            count = tes
+            count = cursor.fetchone()['COUNT(*)']
             connection.commit()
 
         name = input("Quelle est votre nom ? \n>>> ")
         pdf = canvas.Canvas("substituts-{}.pdf".format(name))
-        pdf.drawString(3*cm, 28*cm, u'Bienvenue {} vous avez enregistré {} produits'.format(name, count[0]))
+        pdf.drawString(3*cm, 28*cm, u'Bienvenue {} vous avez enregistré {} produit{}'.format(name, count, test_plural(vartest=count)))
         pdf.line(7.5*cm,23*cm,7.5*cm,0*cm)
         pdf.line(14.5*cm,23*cm,14.5*cm,0*cm)
         #Create the column
+
         pdf.drawString(2*cm, 23.5*cm, u'Mes habitudes')
         pdf.drawString(9.5*cm, 23.5*cm, u'Mes substituts')
         pdf.drawString(17*cm, 23.5*cm, u'Magasins')
         #Create the lines
-        nb_line = 21
-        x = 21
-        y = 21
+        nb_line, x, y = 21, 21, 21
 
         #Get the input_product from table SUBSTITUTS from Database
         with connection :
@@ -95,10 +90,10 @@ class ExportPdf():
             pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
             pdf.drawString(15.5*cm, position*cm, s["STORE"])
             pdf.line(0*cm,x*cm,21*cm,y*cm)
-            nb_line = nb_line - 1
-            position = position - 1
-            x = x - 1
-            y = y - 1
+            nb_line -= 1
+            position -= 1
+            x -= 1
+            y -= 1
 
         #Get the substituts from table SUBSTITUS from Database
 
@@ -145,19 +140,14 @@ class DownloadProduct():
 
     def get_product(max_pages=3, requête=""):
         # Creation list for BDD
-        url = []
-        name = []
-        ns = []
-        link_pictures = []
-
+        url, name, ns, link_pictures = [], [], [], []
         dynamic_link = r.get("https://fr-en.openfoodfacts.org/category/{}/1.json".format(requête))
         info = dynamic_link.json()
         count = info['count']
         page_size = info['page_size']
 
         nbPages = int(math.floor(count / page_size) + 1)  # On déduit le nombre de pages
-        i = 0
-        live_page = 1
+        i, live_page = 0, 1
         while live_page <= nbPages:
             dynamic_json = dynamic_link.json()
             for data in dynamic_json["products"]:
@@ -170,10 +160,8 @@ class DownloadProduct():
                         name.append((data["product_name"]))
                         ns.append((data["nutrition_grades_tags"][0]))
                         link_pictures.append((data["image_url"]))
-                        i = i + 1
+                        i += 1
 
-
-                    #
                     # Deleting products without images
 
                     except KeyError:
@@ -188,35 +176,17 @@ class DownloadProduct():
                 break
 
             # Convert number to letters
-        for n, i in enumerate(ns):
-            if i == 'a':
-                ns[n] = 1
-
-            elif i == 'b':
-                ns[n] = 2
-
-            elif i == 'c':
-                ns[n] = 3
-
-            elif i == 'd':
-                ns[n] = 4
-            elif i == 'e':
-                ns[n] = 5
+        ns_dico={"a":1, "b":2, "c":3, "d":4, "e":5}
+        ns_sort=[]
+        for i in ns:
+            ns_sort.append(ns_dico[i])
+        ns=ns_sort
+        del ns_sort
 
         with connection.cursor() as cursor:
-
             sql = "SELECT MAX(`ID`) FROM CATEGORIES"
             cursor.execute(sql, ())
-            id_category = cursor.fetchall()
-
-        id_category = str(id_category)
-        N_ID = ""
-        for x in id_category :
-            if x in ("0","1","2","3","4","5","6","7","8","9") :
-                N_ID+=(x)
-
-
-        N_ID = int(N_ID)
+            id_category = cursor.fetchone()['MAX(`ID`)']
 
         nb_product = len(link_pictures)
         list_position = 0
@@ -224,7 +194,7 @@ class DownloadProduct():
         while list_position < nb_product :
             with connection.cursor() as cursor:
                 sql = "INSERT INTO PRODUITS (`NOM`,`URL`,`NUTRISCORE`, `CATEGORIE_ID`) VALUES (%s, %s, %s, %s)"
-                cursor.execute(sql, (name[list_position], url[list_position], ns[list_position], N_ID))
+                cursor.execute(sql, (name[list_position], url[list_position], ns[list_position], id_category))
                     
             connection.commit()
             list_position += 1
@@ -236,8 +206,7 @@ class DownloadProduct():
 
             sql = "SELECT PRODUITS.NOM, PRODUITS.ID FROM PRODUITS INNER JOIN CATEGORIES ON PRODUITS.CATEGORIE_ID = CATEGORIES.ID WHERE CATEGORIES.NOM = %s AND NUTRISCORE < 3 LIMIT 5"
             cursor.execute(sql, (name_categorie))
-            result = cursor.fetchall()
-            result = str(result)
+            result = str(cursor.fetchall())
             result = result.replace('{','\n')
             result = result.replace('}','')
             print(result)
@@ -250,9 +219,9 @@ class DownloadProduct():
 
             sql = "SELECT `URL` FROM PRODUITS WHERE `ID`=%s"
             cursor.execute(sql, (choice_substitut))
-            link_result = cursor.fetchall()
+            link_result = cursor.fetchone()
 
-        link_result = str(link_result)
+        link_result = link_result['URL']
         n_link = ''
         for x in link_result :
             if x in ("0","1","2","3","4","5","6","7","8","9") :
@@ -270,8 +239,7 @@ class DownloadProduct():
         link_url = (product_substitut["product"]["image_front_url"])
         stores = (product_substitut["product"]["stores"])
             
-        result_text = ("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Il est disponible dans les magasins : " + stores )
-        print(result_text)
+        print("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Il est disponible dans les magasins : " + stores )
 
         save_mode_substitut = True
         while save_mode_substitut :
@@ -288,10 +256,10 @@ class DownloadProduct():
                     print("enregistrement terminé !")
                     save_mode_substitut = False
                 elif save_BDD == 2:
-                    print("\n enregistrement non effectuée, \n retour vers le menu")
+                    print("\nenregistrement non effectué, \n>>>retour vers le menu")
                     save_mode_substitut = False
                 elif save_BDD > 2 :
-                    print("{} n'est pas dans les numéros proposés\n".format(save_BDD))
+                    print("\n{} n'est pas dans les numéros proposés\n".format(save_BDD))
             except ValueError :
                 if len(save_BDD) > 1 :
                     print("\nOops! {} est un mot, veuillez recommencer : \n".format(save_BDD))
@@ -300,21 +268,20 @@ class DownloadProduct():
 
 class Consult():
     def consult_compare():
+
         """Class to consult products already registered by comparing with the initial product"""
         with connection.cursor() as cursor:
             sql = "SELECT INPUT_PRODUCT FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
             my_products = cursor.fetchall()                    
             connection.commit()
-
-        with connection.cursor() as cursor:
+        """Select product_id for present the comparaison"""
             sql = "SELECT ID FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
             my_products_id = cursor.fetchall()                    
             connection.commit()
             my_products_id = sql_to_list(sql_=my_products_id)
-
-        with connection.cursor() as cursor:
+        """Select caracteristics of my substituts"""
             sql = "SELECT PRODUITS.NOM, PRODUITS.NUTRISCORE FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
             my_substituts = cursor.fetchall()
@@ -353,15 +320,55 @@ class CleaningDB():
             cursor.execute(sql, ())
             connection.commit()
 
+def update():
+    with connection.cursor() as cursor:
+        sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
+        cursor.execute(sql, ())
+        PRODUIT_ID = cursor.fetchall()
+        list_ID_produit = sql_to_list(sql_=PRODUIT_ID)
+
+        """Récupurer nombre produit"""
+        sql_count = "SELECT MAX(ID) FROM PRODUITS"
+        cursor.execute(sql_count, ())
+        MAX_ID = cursor.fetchone()
+        MAX_ID = MAX_ID.pop("MAX(ID)")
+
+        for i in range(1,MAX_ID+1) :
+            if not i in list_ID_produit :
+                sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
+                cursor.execute(sql, ())
+                connection.commit()
+        for r in TABLES:
+            sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (r)
+            cursor.execute(sql, ())
+            connection.commit()
+
+        """Récupérer les catégories en anglais"""
+        print(">>> Récupération de vos catégories de produits")
+        time.sleep(3)
+        sql_get_category = "SELECT `NOM` FROM `CATEGORIES`"
+        cursor.execute(sql_get_category, ())
+        sql_link_category = cursor.fetchall()
+        sql_link_category = sql_to_list(sql_=sql_link_category)
+        temp = []
+        while len(sql_link_category)>0:
+            for l in sql_link_category :
+                temp.append(CATEGORIES_TO_ENGLISH[sql_link_category.pop()])
+
+        sql_link_category = temp
+        """Télécharger les nouvelles données"""
+        print(">>> Mise à jour de vos données")
+        for i in sql_link_category :
+            DownloadProduct.get_product(max_pages=1, requête=i)
+        print(">>> Base de données actualisée")
+
 def MainLoop():
     """Main loop of the program"""  
     continu = True
     while continu:
         try :
             print(transition)
-            terminal_mode = input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n \n>>> ")
-            terminal_mode = int(terminal_mode)
-
+            terminal_mode = int(input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n6 - Actualiser les produits ? \n>>> "))
             if terminal_mode == 1 :
 
                 """ Select the category"""
@@ -391,30 +398,33 @@ def MainLoop():
                 MainLoopBDD(category_french = user_category_choice, category_english = category_to_english, user_product = name_product_choice).test_category_in_BDD()
 
 
-            if terminal_mode == 2 :
+            elif terminal_mode == 2 :
                 Consult.consult_compare()
 
-            if terminal_mode == 3 :
-                choice_nb_products = int(input("1 - Supprimer tous les produits\n2 - Supprimer un produit\n3 - Sortir \n>>> "))
+            elif terminal_mode == 3 :
+                choice_nb_products = int(input("1 - Supprimer tous les produits\n2 - Supprimer un produit\n3 - Revenir à l'accueil \n>>> "))
                 if choice_nb_products == 1 :
                     CleaningDB.cleaning_all_products()
                     print("Base de données nettoyée ! ")
                 elif choice_nb_products == 2 :
                     CleaningDB.cleaning_only_product()
+                    print("Produit supprimé ! ")
                 else :
-                    pass
                     print('Données restaurées ! ')
-            if terminal_mode == 4 :
+            elif terminal_mode == 4 :
                 ExportPdf.export()
 
-            if terminal_mode == 5 :
+            elif terminal_mode == 5 :
                 print("Merci d'utiliser notre programme, au revoir ! ")
                 continu = False
-        except ValueError :
-            if len(terminal_mode) > 1 :
-                print("\nOops! {} est un mot, veuillez recommencer : \n".format(terminal_mode))
-            else :
-                print("\nOops! {} est une lettre, veuillez recommencer : \n".format(terminal_mode))
 
+            elif terminal_mode == 6 :
+                update()
+
+            elif terminal_mode > 6 :
+                print("\nOops! {} n'est pas dans les propositions, veuillez recommencer : \n".format(terminal_mode))  
+
+        except ValueError:
+            print("\nOops! Ce n'est pas un chiffre, veuillez recommencer :")
 if __name__ == '__main__':
     MainLoop()
