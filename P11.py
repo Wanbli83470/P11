@@ -223,12 +223,11 @@ class DownloadProduct:
 
         link_result = link_result['URL']
         n_link = ''
-        for x in link_result :
+        for x in link_result:
             if x in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"):
-                n_link += (x)
+                n_link += x
                 if len(n_link) == 13:
                     break
-                
 
         link_url = "https://fr.openfoodfacts.org/api/v0/produit/{}.json".format(n_link)
         print(link_url)
@@ -242,29 +241,28 @@ class DownloadProduct:
         print("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Il est disponible dans les magasins : " + stores )
 
         save_mode_substitut = True
-        while save_mode_substitut :
-            try :
-                save_BDD = input("Voulez-vous enregistrer ce produit dans vos achats ? 1/oui ; 2/non ")
-                save_BDD = int(save_BDD)
-                if save_BDD == 1 :
+        while save_mode_substitut:
+            try:
+                save_database = input("Voulez-vous enregistrer ce produit dans vos achats ? 1/oui ; 2/non ")
+                save_database = int(save_database)
+                if save_database == 1:
                     print("Enregistrement en cours...")
                     with connection.cursor() as cursor:
                         sql = "INSERT INTO SUBSTITUTS (`PRODUIT_ID`,`INPUT_PRODUCT`,`STORE`) VALUES (%s, %s, %s)"
                         cursor.execute(sql, (choice_substitut, user_product, stores))
-
                         connection.commit()
                     print("enregistrement terminé !")
                     save_mode_substitut = False
-                elif save_BDD == 2:
+                elif save_database == 2:
                     print("\nenregistrement non effectué, \n>>>retour vers le menu")
                     save_mode_substitut = False
-                elif save_BDD > 2:
-                    print("\n{} n'est pas dans les numéros proposés\n".format(save_BDD))
+                elif save_database > 2:
+                    print("\n{} n'est pas dans les numéros proposés\n".format(save_database))
             except ValueError:
-                if len(save_BDD) > 1:
-                    print("\nOops! {} est un mot, veuillez recommencer : \n".format(save_BDD))
-                else :
-                    print("\nOops! {} est une lettre, veuillez recommencer : \n".format(save_BDD))        
+                if len(save_database) > 1:
+                    print("\nOops! {} est un mot, veuillez recommencer : \n".format(save_database))
+                else:
+                    print("\nOops! {} est une lettre, veuillez recommencer : \n".format(save_database))        
 
 
 class Consult():
@@ -292,7 +290,7 @@ class Consult():
             print("Vous n'avez pas encore enregistré de produits !")
             time.sleep(1.5)
         index = -1
-        for i in my_products :
+        for i in my_products:
             for j, k in i.items():
                 print("\nPour remplacer : " + k + " ID = " + str(my_products_id[index+1]))
                 index += 1
