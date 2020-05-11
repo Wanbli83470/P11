@@ -2,10 +2,12 @@
 import pymysql
 import pymysql.cursors
 import time
-from constants import *
+from P11_01_codesource import *
 """CONNECT TO THE DATABASE"""
-from connect import *
-import P11.sql_to_list()
+from P11_02_constantes import *
+import P11.sql_to_list
+
+
 def update():
     with connection.cursor() as cursor:
         sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
@@ -52,5 +54,3 @@ def update():
 
 if __name__ == '__main__':
     update()
-
-from P11 import DownloadProduct, sql_to_list
