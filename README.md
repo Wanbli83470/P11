@@ -8,7 +8,8 @@ Program Installation Guide :
 2. Install Python on your computer.
 3. Enter the downloaded folder and activate the virtual environment using the following command: "./venv/bin/activate"
 4. Install the necessary modules with: "pip install -r requirements.txt"
-5. Start the program with the following command: "P11_01_codesource.py"
+5. 
+6. Start the program with the following command: "P11_01_codesource.py"
 
 
 Guide d'installation du programme :
@@ -18,7 +19,9 @@ Guide d'installation du programme :
 2. Installer Python sur votre machine s'il ne l'est pas.
 3. Entrer dans le dossier téléchargé et activez l'environnement virtuel à l'aide de la commande suivante : "./venv/bin/activate"
 4. Installer les paquets et les dépendances à l'aide de la commande "pip install -r requirements.txt"
-5. Lancer le programme avec la commande suivante : "P11_01_codesource.py"
+5. Lancer le script "P11_08_create_bdd" dans un client mySql ou bien sur l'interface web "PhpMyAdmin"
+6. Configurer vos identifiants de connexion dans le fichier "P11_02_constantes.py"
+7. Lancer le programme avec la commande suivante : "P11_01_codesource.py"
 
 
 Launching of the test:
@@ -32,3 +35,9 @@ Lancement des test :
 1. Ouvrir un terminal dans le dossier racine "P11_ESTIVAL_THOMAS"
 2. Activez l'environnement virtuel à l'aide de la commande suivante : "./venv/bin/activate"
 3. Lancer la commande : "python -m unittest"
+
+Paramétrer les mise à jour automatique (Environnement linux/Ubuntu) :
+---------------------------------------
+1: Ouvrir le fichier P11_09_update.sh et modifier le chemin absolu avec votre nom d'utilisateur
+2: Modifier votre fichier crontab en ligne de commande avec "crontab -e" en insérant une ligne tel que la suivante en fin de fichier :
+* * * * * bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
