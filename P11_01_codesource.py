@@ -1,7 +1,6 @@
 #!/usr/bin/python
-
- # -*- coding: utf-8 -*-
- #  Copyright 2019 Thomas ESTIVAL
+# -*- coding: utf-8 -*-
+#  Copyright 2019 Thomas ESTIVAL
 """use of the reportlab library to generate the PDF and uses of the modules units to work in cm
 Use regex for extract the importants informations
 Use the json and requests module for a json result
@@ -18,9 +17,22 @@ from reportlab.lib.units import cm
 import requests as r
 import pymysql
 import pymysql.cursors
-from constants import *
-"""CONNECT TO THE DATABASE"""
-from connect import *
+from P11_02_constantes import *
+
+try:
+    connection = pymysql.connect(host=LOGIN_CONNECT["HOST"],
+                                 user=LOGIN_CONNECT["USER"],
+                                 password=LOGIN_CONNECT["PASSWORD"],
+                                 db=LOGIN_CONNECT["DB"],
+                                 charset='utf8mb4',
+                                 port=LOGIN_CONNECT["PORT"],
+                                 cursorclass=pymysql.cursors.DictCursor)
+    print(">>> Connexion réussie !")
+
+except:
+    print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
+
+
 def sql_to_list(sql_=""):
     list_id = []
     for d in sql_:

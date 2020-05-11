@@ -1,15 +1,23 @@
-import os
 import unittest
-import glob
 import re
-
 import pymysql
 import pymysql.cursors
 
-from P11 import CleaningDB
-from constants import *
+from P11_01_codesource import CleaningDB
+from P11_02_constantes import *
 
-from connect import *
+try:
+    connection = pymysql.connect(host=LOGIN_CONNECT["HOST"],
+                                 user=LOGIN_CONNECT["USER"],
+                                 password=LOGIN_CONNECT["PASSWORD"],
+                                 db=LOGIN_CONNECT["DB"],
+                                 charset='utf8mb4',
+                                 port=LOGIN_CONNECT["PORT"],
+                                 cursorclass=pymysql.cursors.DictCursor)
+    print(">>> Connexion réussie !")
+
+except:
+    print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
 
 
 class WidgetTestCase(unittest.TestCase):
@@ -35,6 +43,7 @@ class WidgetTestCase(unittest.TestCase):
 
     def test_reset_counter(self):
         pass
+
 
 if __name__ == '__main__':
     unittest.main()

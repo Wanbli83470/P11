@@ -2,7 +2,20 @@ import os
 import unittest
 import glob
 import re
-from P11 import ExportPdf
+from P11_01_codesource import ExportPdf
+
+try:
+    connection = pymysql.connect(host=LOGIN_CONNECT["HOST"],
+                                 user=LOGIN_CONNECT["USER"],
+                                 password=LOGIN_CONNECT["PASSWORD"],
+                                 db=LOGIN_CONNECT["DB"],
+                                 charset='utf8mb4',
+                                 port=LOGIN_CONNECT["PORT"],
+                                 cursorclass=pymysql.cursors.DictCursor)
+    print(">>> Connexion réussie !")
+
+except:
+    print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
 
 
 class WidgetTestCase(unittest.TestCase):
