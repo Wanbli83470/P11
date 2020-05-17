@@ -8,9 +8,9 @@ Program Installation Guide :
 2. Install Python on your computer.
 3. Enter the downloaded folder and activate the virtual environment using the following command: "./venv/bin/activate"
 4. Install the necessary modules with: "pip install -r requirements.txt"
-5. 
-6. Start the program with the following command: "P11_01_codesource.py"
-
+5. Launch the script "P11_08_create_bdd" in a mySql client or on the web interface "PhpMyAdmin"
+6. Configure your login details in the "P11_02_constantes.py" file
+7. Start the program with the following command: "P11_01_codesource.py"
 
 Guide d'installation du programme :
 ----------------------------------
@@ -36,8 +36,16 @@ Lancement des test :
 2. Activez l'environnement virtuel à l'aide de la commande suivante : "./venv/bin/activate"
 3. Lancer la commande : "python -m unittest"
 
+
+Configure automatic updates (Linux / Ubuntu environment):
+---------------------------------------
+1. Open the file P11_09_update.sh and modify the absolute path with your username
+2. Modify your crontab file on the command line with "crontab -e" by inserting a line like the following at the end of the file:
+> - * * * * * bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
+
+
 Paramétrer les mise à jour automatique (Environnement linux/Ubuntu) :
 ---------------------------------------
-1: Ouvrir le fichier P11_09_update.sh et modifier le chemin absolu avec votre nom d'utilisateur
-2: Modifier votre fichier crontab en ligne de commande avec "crontab -e" en insérant une ligne tel que la suivante en fin de fichier :
-* * * * * bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
+1. Ouvrir le fichier P11_09_update.sh et modifier le chemin absolu avec votre nom d'utilisateur
+2. Modifier votre fichier crontab en ligne de commande avec "crontab -e" en insérant une ligne tel que la suivante en fin de fichier :
+> - * * * * * bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
