@@ -1,4 +1,4 @@
-P11_ESTIVAL_THOMAS
+Améliorer un programme Python
 =================
 
 Program Installation Guide :
@@ -48,4 +48,4 @@ Paramétrer les mise à jour automatique (Environnement linux/Ubuntu) :
 ---------------------------------------
 1. Ouvrir le fichier P11_09_update.sh et modifier le chemin absolu avec votre nom d'utilisateur
 2. Modifier votre fichier crontab en ligne de commande avec "crontab -e" en insérant une ligne tel que la suivante en fin de fichier :
-> - * * * * * bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
+> - \* \* \* \* \* bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
