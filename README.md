@@ -41,7 +41,7 @@ Configure automatic updates (Linux / Ubuntu environment):
 ---------------------------------------
 1. Open the file P11_09_update.sh and modify the absolute path with your username
 2. Modify your crontab file on the command line with "crontab -e" by inserting a line like the following at the end of the file:
-> - * * * * * bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
+> - \* \* \* \* \* bash /home/thomas/Bureau/P11_ESTIVAL_THOMAS/P11_09_update.sh
 
 
 Paramétrer les mise à jour automatique (Environnement linux/Ubuntu) :
