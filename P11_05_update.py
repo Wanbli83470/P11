@@ -5,7 +5,6 @@ import time
 from P11_01_codesource import *
 """CONNECT TO THE DATABASE"""
 from P11_02_constantes import *
-import P11.sql_to_list
 
 
 def update():
@@ -48,7 +47,7 @@ def update():
         """Télécharger les nouvelles données"""
         print(">>> Mise à jour de vos données")
         for i in sql_link_category:
-            DownloadProduct.get_product(max_pages=1, requete=i)
+            DownloadProduct.get_product(max_pages=2, requete=i)
         print(">>> Base de données actualisée")
 
 

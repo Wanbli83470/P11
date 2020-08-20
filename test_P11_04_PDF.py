@@ -19,9 +19,5 @@ class WidgetTestCase(unittest.TestCase):
             print("Test réussi, la liste contient un fichier pdf en sortie")
         self.assertEqual(search, True)
 
-    def test_name_pdf(self):
-        pass
-
-
 if __name__ == '__main__':
     unittest.main()

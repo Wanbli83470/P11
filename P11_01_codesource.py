@@ -19,6 +19,10 @@ import pymysql
 import pymysql.cursors
 from P11_02_constantes import *
 
+continu = False
+if __name__ == '__main__':
+    continu = True
+
 try:
     connection = pymysql.connect(host=LOGIN_CONNECT["HOST"],
                                  user=LOGIN_CONNECT["USER"],
@@ -110,14 +114,14 @@ class MainLoopBDD:
         with connection.cursor() as cursor:
             sql = "SELECT NOM FROM `CATEGORIES`"
             cursor.execute(sql, ())
-            category_exist_sql = cursor.fetchall()                    
+            category_exist_sql = cursor.fetchall()
             connection.commit()
-        category_exist_list = []    
-        
+        category_exist_list = []
+
         for c in category_exist_sql:
             for d, e in c.items():
                 category_exist_list.append(e)
-        
+
         if self.category_french in category_exist_list:
             print("Catégorie existante")
             DownloadProduct.save_substituts(name_categorie=self.category_french, user_product=self.user_product)
@@ -192,7 +196,7 @@ class DownloadProduct:
             with connection.cursor() as cursor:
                 sql = "INSERT INTO PRODUITS (`NOM`,`URL`,`NUTRISCORE`, `CATEGORIE_ID`) VALUES (%s, %s, %s, %s)"
                 cursor.execute(sql, (name[list_position], url[list_position], nutriscore[list_position], id_category))
-                    
+
             connection.commit()
             list_position += 1
         del url, name, nutriscore, link_pictures
@@ -211,7 +215,7 @@ class DownloadProduct:
 
         choice_substitut = input("\n Indiquer le numéro du produit que vous souhaitez consulter ")
         print(TRANSITION)
-        
+
         with connection.cursor() as cursor:
 
             sql = "SELECT `URL` FROM PRODUITS WHERE `ID`=%s"
@@ -234,7 +238,7 @@ class DownloadProduct:
         description = (product_substitut["product"]["ingredients_text_debug"])
         link_url = (product_substitut["product"]["image_front_url"])
         stores = (product_substitut["product"]["stores"])
-            
+
         print("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Il est disponible dans les magasins : " + stores )
 
         save_mode_substitut = True
@@ -259,7 +263,7 @@ class DownloadProduct:
                 if len(save_database) > 1:
                     print("\nOops! {} est un mot, veuillez recommencer : \n".format(save_database))
                 else:
-                    print("\nOops! {} est une lettre, veuillez recommencer : \n".format(save_database))        
+                    print("\nOops! {} est une lettre, veuillez recommencer : \n".format(save_database))
 
 
 class Consult():
@@ -270,12 +274,12 @@ class Consult():
         with connection.cursor() as cursor:
             sql = "SELECT INPUT_PRODUCT FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
-            my_products = cursor.fetchall()                    
+            my_products = cursor.fetchall()
             connection.commit()
             """Select product_id for present the comparaison"""
             sql = "SELECT ID FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
-            my_products_id = cursor.fetchall()                    
+            my_products_id = cursor.fetchall()
             connection.commit()
             my_products_id = sql_to_list(sql_=my_products_id)
             """Select caracteristics of my substituts"""
@@ -361,19 +365,24 @@ def update():
         for i in sql_link_category:
             DownloadProduct.get_product(max_pages=1, requete=i)
         print(">>> Base de données actualisée")
+        sql_get_date = "SELECT `DATE` FROM `PRODUITS` WHERE ID=%s" % "1"
+        cursor.execute(sql_get_date, ())
+        sql_get_date = cursor.fetchone()["DATE"]
+        sql_get_date = str(sql_get_date)
+        print(sql_get_date)
+        return sql_get_date
 
 
 class MainLoop:
-    """Main loop of the program"""  
-    continu = True
+    """Main loop of the program"""
     while continu:
         try:
             print(TRANSITION)
-            terminal_mode = int(input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n6 - Actualiser les produits ? \n>>> "))
+            terminal_mode = int(input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n6 - Mettre à jour mes produits ! \n>>> "))
             if terminal_mode == 1:
 
                 """ Select the category"""
-                
+
                 index_category = 1
                 for keys, values in PRODUCTS.items():
                     print(str(index_category) + " " + keys)
@@ -381,7 +390,7 @@ class MainLoop:
                 user_category_choice = int(input("Choissisez le numéro de la catégorie de produits : "))
                 user_category_choice -= 1
                 print("\nVous avez choisi : " + list(PRODUCTS)[user_category_choice])
-                user_category_choice = list(PRODUCTS)[user_category_choice]        
+                user_category_choice = list(PRODUCTS)[user_category_choice]
                 category_to_english = CATEGORIES_TO_ENGLISH[user_category_choice]
                 print(category_to_english)
 
@@ -422,11 +431,7 @@ class MainLoop:
                 update()
 
             elif terminal_mode > 6 or terminal_mode < 1:
-                print("\nOops! {} n'est pas dans les propositions, veuillez recommencer : \n".format(terminal_mode))  
+                print("\nOops! {} n'est pas dans les propositions, veuillez recommencer : \n".format(terminal_mode))
 
         except ValueError:
             print("\nOops! Ce n'est pas un chiffre, veuillez recommencer :")
-
-
-if __name__ == '__main__':
-    MainLoop()
