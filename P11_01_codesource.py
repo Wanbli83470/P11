@@ -364,14 +364,14 @@ def update():
         print(">>> Mise à jour de vos données")
         for i in sql_link_category:
             DownloadProduct.get_product(max_pages=1, requete=i)
-        print(">>> Base de données actualisée")
+        
         sql_get_date = "SELECT `DATE` FROM `PRODUITS` WHERE ID=%s" % "1"
         cursor.execute(sql_get_date, ())
         sql_get_date = cursor.fetchone()["DATE"]
         sql_get_date = str(sql_get_date)
-        print(sql_get_date)
+        sql_get_date = sql_get_date[:10]
+        print(f">>> Base de données actualisée le {sql_get_date}")
         return sql_get_date
-
 
 class MainLoop:
     """Main loop of the program"""
