@@ -8,12 +8,13 @@ from P11_02_constantes import *
 
 date_test = datetime.datetime.now()
 if date_test.month < 10 :
-
+    date_test = f"{date_test.year}-0{date_test.month}-{date_test.day}"
     print(date_test)
 
 elif date_test.day < 10 :
+    date_test = f"{date_test.year}-{date_test.month}-0{date_test.day}"
     print(date_test)
-    
+
 else :
     date_test = f"{date_test.year}-{date_test.month}-{date_test.day}"
     print(date_test)
