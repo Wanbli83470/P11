@@ -1,4 +1,7 @@
 constants.py
 RENDU/
 venv/
+img/
 __pycache__/
+*.pdf
+*.odt
