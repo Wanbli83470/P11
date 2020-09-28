@@ -105,12 +105,14 @@ class ExportPdf:
 
 
 class MainLoopBDD:
+    """BDD management class, response to a conditional structure"""
     def __init__(self, category_french="", category_english="", user_product=""):
         self.category_french = category_french
         self.category_english = category_english
         self.user_product = user_product
 
     def test_category_in_BDD(self):
+        """Direction of the program according to the results of the condition"""
         with connection.cursor() as cursor:
             sql = "SELECT NOM FROM `CATEGORIES`"
             cursor.execute(sql, ())
@@ -140,7 +142,7 @@ class MainLoopBDD:
 
 
 class DownloadProduct:
-
+    """Class handling the downloading of files with the openfoodfacts API"""
     def get_product(max_pages=int, requete=""):
         # Creation list for BDD
         url, name, nutriscore, link_pictures = [], [], [], []
@@ -159,12 +161,14 @@ class DownloadProduct:
 
                 if data["nutrition_grades_tags"] != ['not-applicable'] and data["nutrition_grades_tags"] != ['unknown']:
                     try:
-                        url.append((data["url"]))
-                        name.append((data["product_name"]))
-                        nutriscore.append((data["nutrition_grades_tags"][0]))
-                        link_pictures.append((data["image_url"]))
-                        i += 1
-
+                        if "url" in data and "product_name" in data and "image_url" in data and "nutrition_grades_tags" in data and "stores" in data:
+                            url.append((data["url"]))
+                            name.append((data["product_name"]))
+                            nutriscore.append((data["nutrition_grades_tags"][0]))
+                            link_pictures.append((data["image_url"]))
+                            i = i + 1
+                        else :
+                            pass
                     # Deleting products without images
 
                     except KeyError:
@@ -238,8 +242,11 @@ class DownloadProduct:
         description = (product_substitut["product"]["ingredients_text_debug"])
         link_url = (product_substitut["product"]["image_front_url"])
         stores = (product_substitut["product"]["stores"])
+        if type(stores) != str:
+            print("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Nous n'avons pas trouvé de magasin le proposant." )
 
-        print("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Il est disponible dans les magasins : " + stores )
+        else:
+            print("voici le produit " + product_name + "\n\n" + "Ce produit contient : " + description + "\n\n" + " vous pouvez retrouver le lien ici même : " + link_url + "\n\n" + "Il est disponible dans les magasins : " + stores )
 
         save_mode_substitut = True
         while save_mode_substitut:
@@ -267,10 +274,8 @@ class DownloadProduct:
 
 
 class Consult():
-
+    """Class to consult products already registered by comparing with the initial product"""
     def consult_compare():
-
-        """Class to consult products already registered by comparing with the initial product"""
         with connection.cursor() as cursor:
             sql = "SELECT INPUT_PRODUCT FROM `SUBSTITUTS` ORDER BY PRODUIT_ID"
             cursor.execute(sql, ())
@@ -299,7 +304,6 @@ class Consult():
 
 
 class CleaningDB():
-
     """Class to clean the database with sql requests Delete and alter"""
     def cleaning_all_products():
         """Deleting data with a python loop interacting with SQL"""
@@ -315,15 +319,17 @@ class CleaningDB():
                 connection.commit()
 
     def cleaning_only_product():
+        """Single product delete function"""
         Consult.consult_compare()
         choice_id = input("Tapez l'ID du produit que vous souhaitez supprimer\n>>> ")
         with connection.cursor() as cursor:
             sql = "DELETE FROM `SUBSTITUTS` WHERE ID=%s" % choice_id
             cursor.execute(sql, ())
             connection.commit()
-
+        return choice_id_id
 
 def update():
+    """Product update function"""
     with connection.cursor() as cursor:
         sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
         cursor.execute(sql, ())
@@ -335,12 +341,20 @@ def update():
         cursor.execute(sql_count, ())
         max_id = cursor.fetchone()
         max_id = max_id.pop("MAX(ID)")
-
+        """Récupérer la date en vue des tests"""
+        sql_get_date = "SELECT `DATE` FROM `PRODUITS` WHERE ID=%s" % max_id
+        cursor.execute(sql_get_date, ())
+        sql_get_date = cursor.fetchone()["DATE"]
+        sql_get_date = str(sql_get_date)
+        sql_get_date = sql_get_date[:10]
+        
+        """Suppression des produits"""
         for i in range(1, max_id+1):
             if not i in list_id_products:
                 sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
                 cursor.execute(sql, ())
                 connection.commit()
+        """Reset de l'auto-incrémentation"""
         for r in TABLES:
             sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (r)
             cursor.execute(sql, ())
@@ -364,12 +378,6 @@ def update():
         print(">>> Mise à jour de vos données")
         for i in sql_link_category:
             DownloadProduct.get_product(max_pages=1, requete=i)
-        
-        sql_get_date = "SELECT `DATE` FROM `PRODUITS` WHERE ID=%s" % "1"
-        cursor.execute(sql_get_date, ())
-        sql_get_date = cursor.fetchone()["DATE"]
-        sql_get_date = str(sql_get_date)
-        sql_get_date = sql_get_date[:10]
         print(f">>> Base de données actualisée le {sql_get_date}")
         return sql_get_date
 
