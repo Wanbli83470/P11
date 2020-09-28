@@ -1,1 +1,4 @@
 constants.py
+RENDU/
+venv/
+__pycache__/
