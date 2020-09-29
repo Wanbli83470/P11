@@ -18,23 +18,10 @@ import requests as r
 import pymysql
 import pymysql.cursors
 from P11_02_constantes import *
-
+from connect import *
 continu = False
 if __name__ == '__main__':
     continu = True
-
-try:
-    connection = pymysql.connect(host=LOGIN_CONNECT["HOST"],
-                                 user=LOGIN_CONNECT["USER"],
-                                 password=LOGIN_CONNECT["PASSWORD"],
-                                 db=LOGIN_CONNECT["DB"],
-                                 charset='utf8mb4',
-                                 port=LOGIN_CONNECT["PORT"],
-                                 cursorclass=pymysql.cursors.DictCursor)
-    print(">>> Connexion réussie !")
-
-except:
-    print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
 
 
 def sql_to_list(sql_=""):
@@ -45,7 +32,7 @@ def sql_to_list(sql_=""):
     return list_id
 
 
-def test_plural(vartest: ""):
+def test_plural(vartest= ""):
     if vartest > 1:
         return "s"
     else:
@@ -151,7 +138,7 @@ class DownloadProduct:
         count = info['count']
         page_size = info['page_size']
 
-        nb_pages = int(math.floor(count / page_size) + 1)  # On déduit le nombre de pages
+        nb_pages = int(math.floor(int(count) / int(page_size)) + 1)  # On déduit le nombre de pages
         i, live_page = 0, 1
         while live_page <= nb_pages:
             dynamic_json = dynamic_link.json()
@@ -326,7 +313,7 @@ class CleaningDB():
             sql = "DELETE FROM `SUBSTITUTS` WHERE ID=%s" % choice_id
             cursor.execute(sql, ())
             connection.commit()
-        return choice_id_id
+        return choice_id
 
 def update():
     """Product update function"""
@@ -366,7 +353,9 @@ def update():
         sql_get_category = "SELECT `NOM` FROM `CATEGORIES`"
         cursor.execute(sql_get_category, ())
         sql_link_category = cursor.fetchall()
+        print(sql_link_category)
         sql_link_category = sql_to_list(sql_=sql_link_category)
+        print(sql_link_category)
         temp = []
         while len(sql_link_category) > 0:
             for l in sql_link_category:

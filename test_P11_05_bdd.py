@@ -5,31 +5,37 @@ import pymysql.cursors
 from P11_01_codesource import CleaningDB #Function concerned by the test
 from P11_02_constantes import LOGIN_CONNECT, TABLES
 
-try:
-    connection = pymysql.connect(host=LOGIN_CONNECT["HOST"],
-                                 user=LOGIN_CONNECT["USER"],
-                                 password=LOGIN_CONNECT["PASSWORD"],
-                                 db=LOGIN_CONNECT["DB"],
-                                 charset='utf8mb4',
-                                 port=LOGIN_CONNECT["PORT"],
-                                 cursorclass=pymysql.cursors.DictCursor)
-
-except:
-    print("Erreur de connexion, veuillez vérifier les paramètres dans le fichier constants.py")
+from connect import *
 
 
 class WidgetTestCase(unittest.TestCase):
     """Test the database cleaning"""
     def setUp(self):
         """Start of cleaning"""
-        CleaningDB.cleaning_only_product()
-        CleaningDB.cleaning_all_products()
         print("\n\n---------- TEST DU NETTOYAGE DE LA BASE DE DONNEES ----------\n\n")
+    
+    def test_clean_(self):
+        id_clean = CleaningDB.cleaning_only_product()
+        print(f"Test nettoyage unitaire du produit : {id_clean}")
+        with connection.cursor() as cursor:
+            sql = "SELECT `INPUT_PRODUCT` FROM `SUBSTITUTS` WHERE ID=%s" % id_clean
+            cursor.execute(sql, ())
+            clean_test = cursor.fetchone()
 
-    def test_clean(self):
+            if clean_test == None:
+                print(f"La requête SQL du produit associé à l'ID n°{id_clean} est bien nulle !")
+            else:
+                print("Test échoué !")
+
+            connection.commit()
+
+            if self.assertEqual(clean_test, None) == None :
+                print("\n\n---------- TEST NETTOYAGE UNITAIRE : OK ----------\n\n")
+
+    def test_clean_all(self):
         """SQL query for comparison"""
-        """Test nettoyage unitaire"""
-        """Test nettoyage intégral"""
+        print("Test nettoyage intégral")
+        CleaningDB.cleaning_all_products()
         for t in TABLES:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM %s;" %(t)

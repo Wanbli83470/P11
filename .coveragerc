@@ -2,3 +2,9 @@
 omit =
     *venv/*
     *test/*
+    connect.py
+    P11_02_constantes.py
+    test_P11_03_update.py
+    test_P11_04_PDF.py
+    test_P11_05_bdd.py
+    test_P11_06_fonction.py
