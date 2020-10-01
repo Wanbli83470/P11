@@ -292,30 +292,30 @@ class Consult():
                 print(f"MON SUBSTITUT : {my_substituts[index]}")
 
 
-# class CleaningDB():
-#     """Class to clean the database with sql requests Delete and alter"""
-#     def cleaning_all_products():
-#         """Deleting data with a python loop interacting with SQL"""
-#         with connection.cursor() as cursor:
-#             for delete in TABLES:
-#                 sql = "DELETE FROM %s;" %(delete)
-#                 cursor.execute(sql, ())
-#                 connection.commit()
-#             """resets the counters with auto_increment"""
-#             for reset in TABLES:
-#                 sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (reset)
-#                 cursor.execute(sql, ())
-#                 connection.commit()
+class CleaningDB():
+    """Class to clean the database with sql requests Delete and alter"""
+    def cleaning_all_products():
+        """Deleting data with a python loop interacting with SQL"""
+        with connection.cursor() as cursor:
+            for delete in TABLES:
+                sql = "DELETE FROM %s;" %(delete)
+                cursor.execute(sql, ())
+                connection.commit()
+            """resets the counters with auto_increment"""
+            for reset in TABLES:
+                sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (reset)
+                cursor.execute(sql, ())
+                connection.commit()
 
-#     def cleaning_only_product():
-#         """Single product delete function"""
-#         Consult.consult_compare()
-#         choice_id = input("Tapez l'ID du produit que vous souhaitez supprimer\n>>> ")
-#         with connection.cursor() as cursor:
-#             sql = "DELETE FROM `SUBSTITUTS` WHERE ID=%s" % choice_id
-#             cursor.execute(sql, ())
-#             connection.commit()
-#         return choice_id
+    def cleaning_only_product():
+        """Single product delete function"""
+        Consult.consult_compare()
+        choice_id = input("Tapez l'ID du produit que vous souhaitez supprimer\n>>> ")
+        with connection.cursor() as cursor:
+            sql = "DELETE FROM `SUBSTITUTS` WHERE ID=%s" % choice_id
+            cursor.execute(sql, ())
+            connection.commit()
+        return choice_id
 
 # def update():
 #     """Product update function"""
