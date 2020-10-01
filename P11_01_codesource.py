@@ -39,58 +39,58 @@ def test_plural(vartest = ""):
         return ""
 
 
-# class ExportPdf:
-#     """New program to export substitutes in PDF format"""
-#     def export():
-#         """recovery of the number of products with count and registration of substitutes in the PDF"""
-#         with connection.cursor() as cursor:
-#             sql = "SELECT COUNT(*) FROM SUBSTITUTS"
-#             cursor.execute(sql, ())
-#             count = cursor.fetchone()['COUNT(*)']
-#             connection.commit()
+class ExportPdf:
+    """New program to export substitutes in PDF format"""
+    def export():
+        """recovery of the number of products with count and registration of substitutes in the PDF"""
+        with connection.cursor() as cursor:
+            sql = "SELECT COUNT(*) FROM SUBSTITUTS"
+            cursor.execute(sql, ())
+            count = cursor.fetchone()['COUNT(*)']
+            connection.commit()
 
-#         name = input("Quelle est votre nom ? \n>>> ")
-#         pdf = canvas.Canvas("substituts-{}.pdf".format(name))
-#         pdf.drawString(8*cm, 27*cm, u'{} produit{} enregistré{}'.format(count, test_plural(vartest=count), test_plural(vartest=count)))
-#         pdf.drawString(0.3*cm, 29*cm, u'Date de mon document : {}/{}/{}'.format(date_day.day, date_day.month, date_day.year))
-#         pdf.line(8*cm, 26.8*cm, 12*cm, 26.8*cm)
-#         pdf.line(7.5*cm, 22.5*cm, 7.5*cm, 0*cm)
-#         pdf.line(14.5*cm, 22.5*cm, 14.5*cm, 0*cm)
-#         #Create the column
+        name = input("Quelle est votre nom ? \n>>> ")
+        pdf = canvas.Canvas("substituts-{}.pdf".format(name))
+        pdf.drawString(8*cm, 27*cm, u'{} produit{} enregistré{}'.format(count, test_plural(vartest=count), test_plural(vartest=count)))
+        pdf.drawString(0.3*cm, 29*cm, u'Date de mon document : {}/{}/{}'.format(date_day.day, date_day.month, date_day.year))
+        pdf.line(8*cm, 26.8*cm, 12*cm, 26.8*cm)
+        pdf.line(7.5*cm, 22.5*cm, 7.5*cm, 0*cm)
+        pdf.line(14.5*cm, 22.5*cm, 14.5*cm, 0*cm)
+        #Create the column
 
-#         pdf.drawString(2*cm, 21.5*cm, u'Mes habitudes')
-#         pdf.drawString(9.5*cm, 21.5*cm, u'Mes substituts')
-#         pdf.drawString(17*cm, 21.5*cm, u'Magasins')
-#         #Create the lines
-#         nb_line, x_position, y_position = 21, 21, 21
+        pdf.drawString(2*cm, 21.5*cm, u'Mes habitudes')
+        pdf.drawString(9.5*cm, 21.5*cm, u'Mes substituts')
+        pdf.drawString(17*cm, 21.5*cm, u'Magasins')
+        #Create the lines
+        nb_line, x_position, y_position = 21, 21, 21
 
-#         #Get the input_product from table SUBSTITUTS from Database
-#         with connection:
-#             cur = connection.cursor()
-#             cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
-#             data_sub = cur.fetchall()
+        #Get the input_product from table SUBSTITUTS from Database
+        with connection:
+            cur = connection.cursor()
+            cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
+            data_sub = cur.fetchall()
 
-#         position = 20.4
-#         for s in data_sub:
+        position = 20.4
+        for s in data_sub:
 
-#             with connection:
-#                 cur = connection.cursor()
-#                 cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
-#                 data_sub2 = cur.fetchall()
-#                 pdf.drawString(9*cm, position*cm, str(data_sub2[0]["NOM"]))
+            with connection:
+                cur = connection.cursor()
+                cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
+                data_sub2 = cur.fetchall()
+                pdf.drawString(9*cm, position*cm, str(data_sub2[0]["NOM"]))
 
-#             pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
-#             pdf.drawString(15.5*cm, position*cm, s["STORE"])
-#             pdf.line(0*cm, x_position*cm, 21*cm, y_position*cm)
-#             nb_line -= 1
-#             position -= 1
-#             x_position -= 1
-#             y_position -= 1
+            pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
+            pdf.drawString(15.5*cm, position*cm, s["STORE"])
+            pdf.line(0*cm, x_position*cm, 21*cm, y_position*cm)
+            nb_line -= 1
+            position -= 1
+            x_position -= 1
+            y_position -= 1
 
-#         #Get the substituts from table SUBSTITUS from Database
+        #Get the substituts from table SUBSTITUS from Database
 
-#         pdf.save()
-#         print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
+        pdf.save()
+        print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
 
 
 class MainLoopBDD:
