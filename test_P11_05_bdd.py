@@ -3,7 +3,6 @@ import pymysql #mysql connection utility
 import pymysql.cursors
 
 from P11_01_codesource import CleaningDB #Function concerned by the test
-from P11_02_constantes import LOGIN_CONNECT, TABLES
 
 from connect import *
 

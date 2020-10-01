@@ -2,27 +2,27 @@ import unittest #Test tools
 import datetime #For get the date
 from P11_01_codesource import update #My project
 
-date_test = datetime.datetime.now()
+date_day = datetime.datetime.now()
 
 """standardize the date for the test"""
 
-if date_test.day < 10 and date_test.month < 10:
-    date_test = f"{date_test.year}-0{date_test.month}-0{date_test.day}"
-    print(date_test)
+if date_day.day < 10 and date_day.month < 10:
+    date_day = f"{date_day.year}-0{date_day.month}-0{date_day.day}"
+    print(date_day)
 
-elif date_test.month < 10:
-    date_test = f"{date_test.year}-0{date_test.month}-{date_test.day}"
-    print(date_test)
+elif date_day.month < 10:
+    date_day = f"{date_day.year}-0{date_day.month}-{date_day.day}"
+    print(date_day)
 
-elif date_test.day < 10:
-    date_test = f"{date_test.year}-{date_test.month}-0{date_test.day}"
-    print(date_test)
+elif date_day.day < 10:
+    date_day = f"{date_day.year}-{date_day.month}-0{date_day.day}"
+    print(date_day)
 
 else:
-    date_test = f"{date_test.year}-{date_test.month}-{date_test.day}"
-    print(date_test)
+    date_day = f"{date_day.year}-{date_day.month}-{date_day.day}"
+    print(date_day)
 
-DATE_TEST = str(date_test)
+DATE_TEST = str(date_day)
 
 
 class WidgetTestCase(unittest.TestCase):

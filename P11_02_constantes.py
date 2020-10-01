@@ -1,5 +1,8 @@
 """constantes connection"""
 import os
+import datetime
+
+date_day = datetime.datetime.now()
 
 LOGIN_CONNECT = {
     "HOST": '127.0.0.1',

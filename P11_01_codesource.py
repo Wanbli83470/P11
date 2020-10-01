@@ -24,7 +24,7 @@ if __name__ == '__main__':
     continu = True
 
 
-def sql_to_list(sql_=""):
+def sql_to_list(sql_ = ""):
     list_id = []
     for d in sql_:
         for key, val in d.items():
@@ -32,63 +32,65 @@ def sql_to_list(sql_=""):
     return list_id
 
 
-def test_plural(vartest= ""):
+def test_plural(vartest = ""):
     if vartest > 1:
         return "s"
     else:
         return ""
 
 
-class ExportPdf:
-    """New program to export substitutes in PDF format"""
-    def export():
-        """recovery of the number of products with count and registration of substitutes in the PDF"""
-        with connection.cursor() as cursor:
-            sql = "SELECT COUNT(*) FROM SUBSTITUTS"
-            cursor.execute(sql, ())
-            count = cursor.fetchone()['COUNT(*)']
-            connection.commit()
+# class ExportPdf:
+#     """New program to export substitutes in PDF format"""
+#     def export():
+#         """recovery of the number of products with count and registration of substitutes in the PDF"""
+#         with connection.cursor() as cursor:
+#             sql = "SELECT COUNT(*) FROM SUBSTITUTS"
+#             cursor.execute(sql, ())
+#             count = cursor.fetchone()['COUNT(*)']
+#             connection.commit()
 
-        name = input("Quelle est votre nom ? \n>>> ")
-        pdf = canvas.Canvas("substituts-{}.pdf".format(name))
-        pdf.drawString(3*cm, 28*cm, u'Bienvenue {} vous avez enregistré {} produit{}'.format(name, count, test_plural(vartest=count)))
-        pdf.line(7.5*cm, 23*cm, 7.5*cm, 0*cm)
-        pdf.line(14.5*cm, 23*cm, 14.5*cm, 0*cm)
-        #Create the column
+#         name = input("Quelle est votre nom ? \n>>> ")
+#         pdf = canvas.Canvas("substituts-{}.pdf".format(name))
+#         pdf.drawString(8*cm, 27*cm, u'{} produit{} enregistré{}'.format(count, test_plural(vartest=count), test_plural(vartest=count)))
+#         pdf.drawString(0.3*cm, 29*cm, u'Date de mon document : {}/{}/{}'.format(date_day.day, date_day.month, date_day.year))
+#         pdf.line(8*cm, 26.8*cm, 12*cm, 26.8*cm)
+#         pdf.line(7.5*cm, 22.5*cm, 7.5*cm, 0*cm)
+#         pdf.line(14.5*cm, 22.5*cm, 14.5*cm, 0*cm)
+#         #Create the column
 
-        pdf.drawString(2*cm, 23.5*cm, u'Mes habitudes')
-        pdf.drawString(9.5*cm, 23.5*cm, u'Mes substituts')
-        pdf.drawString(17*cm, 23.5*cm, u'Magasins')
-        #Create the lines
-        nb_line, x_position, y_position = 21, 21, 21
+#         pdf.drawString(2*cm, 21.5*cm, u'Mes habitudes')
+#         pdf.drawString(9.5*cm, 21.5*cm, u'Mes substituts')
+#         pdf.drawString(17*cm, 21.5*cm, u'Magasins')
+#         #Create the lines
+#         nb_line, x_position, y_position = 21, 21, 21
 
-        #Get the input_product from table SUBSTITUTS from Database
-        with connection:
-            cur = connection.cursor()
-            cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
-            data_sub = cur.fetchall()
+#         #Get the input_product from table SUBSTITUTS from Database
+#         with connection:
+#             cur = connection.cursor()
+#             cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
+#             data_sub = cur.fetchall()
 
-        position = 20.4
-        for s in data_sub:
+#         position = 20.4
+#         for s in data_sub:
 
-            with connection:
-                cur = connection.cursor()
-                cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
-                data_sub2 = cur.fetchall()
-                pdf.drawString(9*cm, position*cm, str(data_sub2[0]["NOM"]))
+#             with connection:
+#                 cur = connection.cursor()
+#                 cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
+#                 data_sub2 = cur.fetchall()
+#                 pdf.drawString(9*cm, position*cm, str(data_sub2[0]["NOM"]))
 
-            pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
-            pdf.drawString(15.5*cm, position*cm, s["STORE"])
-            pdf.line(0*cm, x_position*cm, 21*cm, y_position*cm)
-            nb_line -= 1
-            position -= 1
-            x_position -= 1
-            y_position -= 1
+#             pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
+#             pdf.drawString(15.5*cm, position*cm, s["STORE"])
+#             pdf.line(0*cm, x_position*cm, 21*cm, y_position*cm)
+#             nb_line -= 1
+#             position -= 1
+#             x_position -= 1
+#             y_position -= 1
 
-        #Get the substituts from table SUBSTITUS from Database
+#         #Get the substituts from table SUBSTITUS from Database
 
-        pdf.save()
-        print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
+#         pdf.save()
+#         print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
 
 
 class MainLoopBDD:
@@ -290,85 +292,83 @@ class Consult():
                 print(f"MON SUBSTITUT : {my_substituts[index]}")
 
 
-class CleaningDB():
-    """Class to clean the database with sql requests Delete and alter"""
-    def cleaning_all_products():
-        """Deleting data with a python loop interacting with SQL"""
-        with connection.cursor() as cursor:
-            for delete in TABLES:
-                sql = "DELETE FROM %s;" %(delete)
-                cursor.execute(sql, ())
-                connection.commit()
-            """resets the counters with auto_increment"""
-            for reset in TABLES:
-                sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (reset)
-                cursor.execute(sql, ())
-                connection.commit()
+# class CleaningDB():
+#     """Class to clean the database with sql requests Delete and alter"""
+#     def cleaning_all_products():
+#         """Deleting data with a python loop interacting with SQL"""
+#         with connection.cursor() as cursor:
+#             for delete in TABLES:
+#                 sql = "DELETE FROM %s;" %(delete)
+#                 cursor.execute(sql, ())
+#                 connection.commit()
+#             """resets the counters with auto_increment"""
+#             for reset in TABLES:
+#                 sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (reset)
+#                 cursor.execute(sql, ())
+#                 connection.commit()
 
-    def cleaning_only_product():
-        """Single product delete function"""
-        Consult.consult_compare()
-        choice_id = input("Tapez l'ID du produit que vous souhaitez supprimer\n>>> ")
-        with connection.cursor() as cursor:
-            sql = "DELETE FROM `SUBSTITUTS` WHERE ID=%s" % choice_id
-            cursor.execute(sql, ())
-            connection.commit()
-        return choice_id
+#     def cleaning_only_product():
+#         """Single product delete function"""
+#         Consult.consult_compare()
+#         choice_id = input("Tapez l'ID du produit que vous souhaitez supprimer\n>>> ")
+#         with connection.cursor() as cursor:
+#             sql = "DELETE FROM `SUBSTITUTS` WHERE ID=%s" % choice_id
+#             cursor.execute(sql, ())
+#             connection.commit()
+#         return choice_id
 
-def update():
-    """Product update function"""
-    with connection.cursor() as cursor:
-        sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
-        cursor.execute(sql, ())
-        list_id_products = cursor.fetchall()
-        list_id_products = sql_to_list(sql_=list_id_products)
+# def update():
+#     """Product update function"""
+#     with connection.cursor() as cursor:
+#         sql = "SELECT PRODUITS.ID FROM PRODUITS INNER JOIN SUBSTITUTS ON PRODUITS.ID = SUBSTITUTS.PRODUIT_ID"
+#         cursor.execute(sql, ())
+#         list_id_products = cursor.fetchall()
+#         list_id_products = sql_to_list(sql_=list_id_products)
 
-        """Récupurer nombre produit"""
-        sql_count = "SELECT MAX(ID) FROM PRODUITS"
-        cursor.execute(sql_count, ())
-        max_id = cursor.fetchone()
-        max_id = max_id.pop("MAX(ID)")
-        """Récupérer la date en vue des tests"""
-        sql_get_date = "SELECT `DATE` FROM `PRODUITS` WHERE ID=%s" % max_id
-        cursor.execute(sql_get_date, ())
-        sql_get_date = cursor.fetchone()["DATE"]
-        sql_get_date = str(sql_get_date)
-        sql_get_date = sql_get_date[:10]
+#         """Récupurer nombre produit"""
+#         sql_count = "SELECT MAX(ID) FROM PRODUITS"
+#         cursor.execute(sql_count, ())
+#         max_id = cursor.fetchone()
+#         max_id = max_id.pop("MAX(ID)")
+#         """Récupérer la date en vue des tests"""
+#         sql_get_date = "SELECT `DATE` FROM `PRODUITS` WHERE ID=%s" % max_id
+#         cursor.execute(sql_get_date, ())
+#         sql_get_date = cursor.fetchone()["DATE"]
+#         sql_get_date = str(sql_get_date)
+#         sql_get_date = sql_get_date[:10]
         
-        """Suppression des produits"""
-        for i in range(1, max_id+1):
-            if not i in list_id_products:
-                sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
-                cursor.execute(sql, ())
-                connection.commit()
-        """Reset de l'auto-incrémentation"""
-        for r in TABLES:
-            sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (r)
-            cursor.execute(sql, ())
-            connection.commit()
+#         """Suppression des produits"""
+#         for i in range(1, max_id+1):
+#             if not i in list_id_products:
+#                 sql = "DELETE FROM PRODUITS WHERE ID=%s" % i
+#                 cursor.execute(sql, ())
+#                 connection.commit()
+#         """Reset de l'auto-incrémentation"""
+#         for r in TABLES:
+#             sql = "ALTER TABLE %s AUTO_INCREMENT=0;" % (r)
+#             cursor.execute(sql, ())
+#             connection.commit()
 
-        """Récupérer les catégories en anglais"""
-        print(">>> Récupération de vos catégories de produits")
-        time.sleep(3)
-        sql_get_category = "SELECT `NOM` FROM `CATEGORIES`"
-        cursor.execute(sql_get_category, ())
-        sql_link_category = cursor.fetchall()
-        print(sql_link_category)
-        sql_link_category = sql_to_list(sql_=sql_link_category)
-        print(sql_link_category)
-        temp = []
-        while len(sql_link_category) > 0:
-            for l in sql_link_category:
-                temp.append(CATEGORIES_TO_ENGLISH[sql_link_category.pop()])
+#         """Récupérer les catégories en anglais"""
+#         print(">>> Récupération de vos catégories de produits")
+#         time.sleep(3)
+#         sql_get_category = "SELECT `NOM` FROM `CATEGORIES`"
+#         cursor.execute(sql_get_category, ())
+#         sql_link_category = cursor.fetchall()
+#         sql_link_category = sql_to_list(sql_=sql_link_category)
+#         temp = []
+#         while len(sql_link_category) > 0:
+#             for l in sql_link_category:
+#                 temp.append(CATEGORIES_TO_ENGLISH[sql_link_category.pop()])
 
-        sql_link_category = temp
-        del temp
-        """Télécharger les nouvelles données"""
-        print(">>> Mise à jour de vos données")
-        for i in sql_link_category:
-            DownloadProduct.get_product(max_pages=1, requete=i)
-        print(f">>> Base de données actualisée le {sql_get_date}")
-        return sql_get_date
+#         sql_link_category = temp
+#         del temp
+#         """Télécharger les nouvelles données"""
+#         print(">>> Mise à jour de vos données")
+#         for i in sql_link_category:
+#             DownloadProduct.get_product(max_pages=1, requete=i)
+#         print(f">>> Base de données actualisée le {sql_get_date}")
+#         return sql_get_date
 
 class MainLoop:
     """Main loop of the program"""
