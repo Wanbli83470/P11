@@ -1,26 +1,30 @@
 import unittest #Test tools
 import glob #The glob module finds all the pathnames matching a specified pattern according to the rules
 from P11_01_codesource import ExportPdf #import of the function required for the test
+import time
 
 
 class WidgetTestCase(unittest.TestCase):
     """Does PDF export work?"""
     def setUp(self):
         """Launch of an export"""
-        print("\n\n---------- TEST DE L'EXPORT PDF ----------\n\n")
+        print("\n\n      >>> 2 <<< ---------- TEST DE L'EXPORT PDF ---------- >>> 2 <<< \n\n")
         self.generate = ExportPdf.export()
         self.search_pdf = glob.glob("./*pdf")
+        time.sleep(1.5)
 
     def test_exist(self):
         """Membership test"""
         if not self.search_pdf:
             search = False
-            print("Test échoué la liste est vide")
+            print("\n\n >>> 2 <<< Test échoué la liste est vide >>> 2 <<< \n\n")
         else:
             search = True
-            print("Test réussi, la liste contient un fichier pdf en sortie")
-            print("\n\n---------- TEST DE L'EXPORT PDF OK ----------\n\n")
+            print("\n\n >>> 2 <<< ---------- TEST DE L'EXPORT PDF OK ---------- >>> 2 <<< \n\n")
         self.assertEqual(search, True)
+
+        time.sleep(2)
+        print("\n"*50)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 import unittest #Test tools
 import pymysql #mysql connection utility
 import pymysql.cursors
+import time
 
 from P11_01_codesource import CleaningDB #Function concerned by the test
 
@@ -9,13 +10,15 @@ from connect import *
 
 class WidgetTestCase(unittest.TestCase):
     """Test the database cleaning"""
+
     def setUp(self):
         """Start of cleaning"""
-        print("\n\n---------- TEST DU NETTOYAGE DE LA BASE DE DONNEES ----------\n\n")
-    
+        print("\n\n       >>> 3 <<< ---------- TEST DU NETTOYAGE DE LA BASE DE DONNEES ---------- >>> 3 <<< \n\n")
+        time.sleep(1.5)
+
     def test_clean_(self):
         id_clean = CleaningDB.cleaning_only_product()
-        print(f"Test nettoyage unitaire du produit : {id_clean}")
+        print(f"TEST NETTOYAGE UNITAIRE : {id_clean}")
         with connection.cursor() as cursor:
             sql = "SELECT `INPUT_PRODUCT` FROM `SUBSTITUTS` WHERE ID=%s" % id_clean
             cursor.execute(sql, ())
@@ -29,18 +32,18 @@ class WidgetTestCase(unittest.TestCase):
             connection.commit()
 
             if self.assertEqual(clean_test, None) == None :
-                print("\n\n---------- TEST NETTOYAGE UNITAIRE : OK ----------\n\n")
+                print("\n\n >>> 3 <<< ---------- TEST NETTOYAGE UNITAIRE : OK ---------- >>> 3 <<< \n\n")
+                time.sleep(1.5)
 
     def test_clean_all(self):
         """SQL query for comparison"""
-        print("Test nettoyage intégral")
+        print("TEST NETTOYAGE INTÉGRALE")
         CleaningDB.cleaning_all_products()
         for t in TABLES:
             with connection.cursor() as cursor:
                 sql = "SELECT * FROM %s;" %(t)
                 cursor.execute(sql, ())
                 clean_test = cursor.fetchall()
-                print(clean_test)
 
                 if clean_test == ():
                     print(f"{t} est bien vide, test réussi !")
@@ -50,8 +53,10 @@ class WidgetTestCase(unittest.TestCase):
                 connection.commit()
 
             if self.assertEqual(clean_test, ()) :
-                print("\n\n---------- TEST DU NETTOYAGE DE LA BASE DE DONNEES OK ----------\n\n")
+                print("\n\n >>> 3 <<< ---------- TEST DU NETTOYAGE DE LA BASE DE DONNEES OK ---------- >>> 3 <<< \n\n")
 
-
+        time.sleep(2)
+        print("\n"*50)
+        
 if __name__ == '__main__':
     unittest.main()

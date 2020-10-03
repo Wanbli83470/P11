@@ -1,6 +1,7 @@
 import unittest #Test tools
 import datetime #For get the date
 from P11_01_codesource import update #My project
+import time
 
 date_day = datetime.datetime.now()
 
@@ -32,15 +33,15 @@ class WidgetTestCase(unittest.TestCase):
 
     def setUp(self):
         """Starting the update, and retrieving the date"""
-        print("\n\n---------- TEST DE LA MISE À JOUR BDD ----------\n\n")
+        print("\n\n      >>> 1 <<< ---------- TEST DE LA MISE À JOUR BDD ---------- >>> 1 <<< \n\n")
         self.date_control = update()
 
     def test_date(self):
         """Compare the SQL update date and today's date"""
         self.assertEqual(self.date_control, DATE_TEST)
-        print("\n\n---------- TEST DE LA MISE À JOUR BDD OK ----------\n\n")
-
-
+        print("\n\n >>> 1 <<< ---------- TEST DE LA MISE À JOUR BDD OK ---------- >>> 1 <<< \n\n")
+        time.sleep(2)
+        print("\n"*50)
 
 if __name__ == '__main__':
     unittest.main()

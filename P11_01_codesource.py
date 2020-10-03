@@ -42,6 +42,7 @@ def test_plural(vartest = ""):
 class ExportPdf:
     """New program to export substitutes in PDF format"""
     def export():
+
         """recovery of the number of products with count and registration of substitutes in the PDF"""
         with connection.cursor() as cursor:
             sql = "SELECT COUNT(*) FROM SUBSTITUTS"
@@ -49,48 +50,51 @@ class ExportPdf:
             count = cursor.fetchone()['COUNT(*)']
             connection.commit()
 
-        name = input("Quelle est votre nom ? \n>>> ")
-        pdf = canvas.Canvas("substituts-{}.pdf".format(name))
-        pdf.drawString(8*cm, 27*cm, u'{} produit{} enregistré{}'.format(count, test_plural(vartest=count), test_plural(vartest=count)))
-        pdf.drawString(0.3*cm, 29*cm, u'Date de mon document : {}/{}/{}'.format(date_day.day, date_day.month, date_day.year))
-        pdf.line(8*cm, 26.8*cm, 12*cm, 26.8*cm)
-        pdf.line(7.5*cm, 22.5*cm, 7.5*cm, 0*cm)
-        pdf.line(14.5*cm, 22.5*cm, 14.5*cm, 0*cm)
-        #Create the column
+        name = input("Quelle est votre nom ? (Tapez 0 pour revenir à l'accueil !)\n>>> ")
+        if name == "0":
+            terminal_mode = 0
+        else :
+            pdf = canvas.Canvas("substituts-{}.pdf".format(name))
+            pdf.drawString(8*cm, 27*cm, u'{} produit{} enregistré{}'.format(count, test_plural(vartest=count), test_plural(vartest=count)))
+            pdf.drawString(0.3*cm, 29*cm, u'Date de mon document : {}/{}/{}'.format(date_day.day, date_day.month, date_day.year))
+            pdf.line(8*cm, 26.8*cm, 12*cm, 26.8*cm)
+            pdf.line(7.5*cm, 22.5*cm, 7.5*cm, 0*cm)
+            pdf.line(14.5*cm, 22.5*cm, 14.5*cm, 0*cm)
+            #Create the column
 
-        pdf.drawString(2*cm, 21.5*cm, u'Mes habitudes')
-        pdf.drawString(9.5*cm, 21.5*cm, u'Mes substituts')
-        pdf.drawString(17*cm, 21.5*cm, u'Magasins')
-        #Create the lines
-        nb_line, x_position, y_position = 21, 21, 21
+            pdf.drawString(2*cm, 21.5*cm, u'Mes habitudes')
+            pdf.drawString(9.5*cm, 21.5*cm, u'Mes substituts')
+            pdf.drawString(17*cm, 21.5*cm, u'Magasins')
+            #Create the lines
+            nb_line, x_position, y_position = 21, 21, 21
 
-        #Get the input_product from table SUBSTITUTS from Database
-        with connection:
-            cur = connection.cursor()
-            cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
-            data_sub = cur.fetchall()
-
-        position = 20.4
-        for s in data_sub:
-
+            #Get the input_product from table SUBSTITUTS from Database
             with connection:
                 cur = connection.cursor()
-                cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
-                data_sub2 = cur.fetchall()
-                pdf.drawString(9*cm, position*cm, str(data_sub2[0]["NOM"]))
+                cur.execute("SELECT INPUT_PRODUCT, PRODUIT_ID, STORE FROM SUBSTITUTS")
+                data_sub = cur.fetchall()
 
-            pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
-            pdf.drawString(15.5*cm, position*cm, s["STORE"])
-            pdf.line(0*cm, x_position*cm, 21*cm, y_position*cm)
-            nb_line -= 1
-            position -= 1
-            x_position -= 1
-            y_position -= 1
+            position = 20.4
+            for s in data_sub:
 
-        #Get the substituts from table SUBSTITUS from Database
+                with connection:
+                    cur = connection.cursor()
+                    cur.execute("SELECT NOM FROM PRODUITS WHERE ID=%s" % (int(s["PRODUIT_ID"])))
+                    data_sub2 = cur.fetchall()
+                    pdf.drawString(9*cm, position*cm, str(data_sub2[0]["NOM"]))
 
-        pdf.save()
-        print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
+                pdf.drawString(2.5*cm, position*cm, s["INPUT_PRODUCT"])
+                pdf.drawString(15.5*cm, position*cm, s["STORE"])
+                pdf.line(0*cm, x_position*cm, 21*cm, y_position*cm)
+                nb_line -= 1
+                position -= 1
+                x_position -= 1
+                y_position -= 1
+
+            #Get the substituts from table SUBSTITUS from Database
+
+            pdf.save()
+            print("\nVotre PDF a bien été enregistré sous le nom : substituts-{}.pdf".format(name))
 
 
 class MainLoopBDD:
@@ -284,6 +288,7 @@ class Consult():
         if my_substituts == ():
             print("Vous n'avez pas encore enregistré de produits !")
             time.sleep(1.5)
+            return 0
         index = -1
         for i in my_products:
             for j, k in i.items():
@@ -370,13 +375,15 @@ def update():
         print(f">>> Base de données actualisée le {sql_get_date}")
         return sql_get_date
 
+terminal_mode = 0
+
 class MainLoop:
     """Main loop of the program"""
     while continu:
         try:
             print(TRANSITION)
-            terminal_mode = int(input("\n1 - Quel aliment souhaitez-vous remplacer ? \n2 - Retrouver mes aliments substitués. \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n6 - Mettre à jour mes produits ! \n>>> "))
-            if terminal_mode == 1:
+            terminal_mode = int(input("\n1 - Comment changer mon alimentation ? \n2 - Visualiser mon alimentation \n3 - Supprimer des produits \n4 - exporter un PDF imprimable \n5 - Sortir du programme ? \n6 - Mettre à jour mes produits ! \n>>> "))
+            while terminal_mode == 1 and terminal_mode != 0:
 
                 """ Select the category"""
 
@@ -384,50 +391,63 @@ class MainLoop:
                 for keys, values in PRODUCTS.items():
                     print(str(index_category) + " " + keys)
                     index_category += 1
+                return_accueil = index_category
+                print(f"{return_accueil} Revenir à l'accueil ! ")
                 user_category_choice = int(input("Choissisez le numéro de la catégorie de produits : "))
-                user_category_choice -= 1
-                print("\nVous avez choisi : " + list(PRODUCTS)[user_category_choice])
-                user_category_choice = list(PRODUCTS)[user_category_choice]
-                category_to_english = CATEGORIES_TO_ENGLISH[user_category_choice]
-                print(category_to_english)
+                if user_category_choice == return_accueil :
+                    print("\n>>> Retour à l'accueil\n")
+                    terminal_mode = 0
+                else :
+                    user_category_choice -= 1
+                    print("\nVous avez choisi : " + list(PRODUCTS)[user_category_choice])
+                    user_category_choice = list(PRODUCTS)[user_category_choice]
+                    category_to_english = CATEGORIES_TO_ENGLISH[user_category_choice]
+                    print(category_to_english)
 
-                """Select The product"""
+                    """Select The product"""
 
-                index_products = 1
-                for p in PRODUCTS[user_category_choice]:
-                    print(str(index_products) + " " + p)
-                    index_products += 1
-                user_product_choice = int(input("Choissisez le numéro de produits : "))
-                user_product_choice -= 1
-                print("\n vous avez choisi : " + PRODUCTS[user_category_choice][user_product_choice])
-                name_product_choice = PRODUCTS[user_category_choice][user_product_choice]
-                """Dowload the products"""
-                MainLoopBDD(category_french=user_category_choice, category_english=category_to_english, user_product=name_product_choice).test_category_in_BDD()
+                    index_products = 1
+                    for p in PRODUCTS[user_category_choice]:
+                        print(str(index_products) + " " + p)
+                        index_products += 1
+                    user_product_choice = int(input("Choissisez le numéro de produits : "))
+                    user_product_choice -= 1
+                    print("\n vous avez choisi : " + PRODUCTS[user_category_choice][user_product_choice])
+                    name_product_choice = PRODUCTS[user_category_choice][user_product_choice]
+                    """Dowload the products"""
+                    MainLoopBDD(category_french=user_category_choice, category_english=category_to_english, user_product=name_product_choice).test_category_in_BDD()
 
-            elif terminal_mode == 2:
-                Consult.consult_compare()
+            while terminal_mode == 2:
+                Visual_product = Consult.consult_compare()
+                if Visual_product == 0:
+                    terminal_mode = 0
 
-            elif terminal_mode == 3:
+            while terminal_mode == 3:
                 choice_nb_products = int(input("1 - Supprimer tous les produits\n2 - Supprimer un produit\n3 - Revenir à l'accueil \n>>> "))
                 if choice_nb_products == 1:
                     CleaningDB.cleaning_all_products()
                     print("Base de données nettoyée ! ")
+                    terminal_mode = 0
                 elif choice_nb_products == 2:
                     CleaningDB.cleaning_only_product()
                     print("Produit supprimé ! ")
-                else:
-                    print('Données restaurées ! ')
-            elif terminal_mode == 4:
-                ExportPdf.export()
+                elif choice_nb_products >= 3:
+                    terminal_mode = 0
 
-            elif terminal_mode == 5:
+            while terminal_mode == 4:
+                ExportPdf.export()
+                terminal_mode = 0
+
+            while terminal_mode == 5:
                 print("Merci d'utiliser notre programme, au revoir ! ")
+                terminal_mode = 0
                 continu = False
 
-            elif terminal_mode == 6:
+            while terminal_mode == 6:
                 update()
+                terminal_mode = 0
 
-            elif terminal_mode > 6 or terminal_mode < 1:
+            while terminal_mode > 6 :
                 print("\nOops! {} n'est pas dans les propositions, veuillez recommencer : \n".format(terminal_mode))
 
         except ValueError:
