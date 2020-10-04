@@ -1,11 +1,8 @@
-import unittest #Test tools
-import datetime #For get the date
-from P11_01_codesource import update #My project
-import time
+import unittest  # Test tools
+import time  # time space
+from P11_01_codesource import update  # My project
+from P11_02_constantes import date_day  # My project
 
-date_day = datetime.datetime.now()
-
-"""standardize the date for the test"""
 
 if date_day.day < 10 and date_day.month < 10:
     date_day = f"{date_day.year}-0{date_day.month}-0{date_day.day}"
@@ -42,6 +39,7 @@ class WidgetTestCase(unittest.TestCase):
         print("\n\n >>> 1 <<< ---------- TEST DE LA MISE À JOUR BDD OK ---------- >>> 1 <<< \n\n")
         time.sleep(2)
         print("\n"*50)
+
 
 if __name__ == '__main__':
     unittest.main()

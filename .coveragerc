@@ -8,3 +8,4 @@ omit =
     test_P11_04_PDF.py
     test_P11_05_bdd.py
     test_P11_06_fonction.py
+    test_P11_07_download.py

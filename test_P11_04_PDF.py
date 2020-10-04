@@ -1,7 +1,8 @@
-import unittest #Test tools
-import glob #The glob module finds all the pathnames matching a specified pattern according to the rules
-from P11_01_codesource import ExportPdf #import of the function required for the test
-import time
+import unittest  # Test tools
+import glob  # The glob module finds all the pathnames
+# matching a specified pattern according to the rules
+import time  # time space
+from P11_01_codesource import ExportPdf  # import of the function required for the test
 
 
 class WidgetTestCase(unittest.TestCase):

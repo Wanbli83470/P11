@@ -1,9 +1,6 @@
-import unittest #Test tools
-import pymysql #mysql connection utility
-import pymysql.cursors
-import time
-
-from P11_01_codesource import CleaningDB #Function concerned by the test
+import unittest  # Test tools
+import time  # time space
+from P11_01_codesource import CleaningDB  # Function concerned by the test
 
 from connect import *
 
@@ -31,7 +28,7 @@ class WidgetTestCase(unittest.TestCase):
 
             connection.commit()
 
-            if self.assertEqual(clean_test, None) == None :
+            if self.assertEqual(clean_test, None) == None:
                 print("\n\n >>> 3 <<< ---------- TEST NETTOYAGE UNITAIRE : OK ---------- >>> 3 <<< \n\n")
                 time.sleep(1.5)
 
@@ -52,11 +49,12 @@ class WidgetTestCase(unittest.TestCase):
 
                 connection.commit()
 
-            if self.assertEqual(clean_test, ()) :
+            if self.assertEqual(clean_test, ()):
                 print("\n\n >>> 3 <<< ---------- TEST DU NETTOYAGE DE LA BASE DE DONNEES OK ---------- >>> 3 <<< \n\n")
 
         time.sleep(2)
         print("\n"*50)
-        
+
+
 if __name__ == '__main__':
     unittest.main()
